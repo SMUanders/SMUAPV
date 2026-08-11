@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+@import "tailwindcss";
+
+/* =============================================================
+   SMU APV designsystem
+   @theme-blokken holdes IDENTISK med smu-os-v2 (docs/SMU_DESIGN_SYSTEM.md)
+   og de øvrige SMU-apps. Farver bruges via Tailwind-tokens (text-navy,
+   bg-primary, …) eller hjælpeklasserne nedenfor — aldrig rå hex i komponenter.
+   ============================================================= */
+
+@theme {
+  /* Varm beige base */
+  --color-bg:           #f4f2ed;
+  --color-row-bg:       #f9f7f3;
+  --color-card:         #ffffff;
+  --color-border:       #e4e0d8;
+  --color-border-soft:  #f0ede7;
+  --color-navy:         #213746;
+  --color-navy-soft:    #2f4758;
+  --color-text:         #213746;
+  --color-text-muted:   #78909c;
+  --color-text-on-navy: #b8c8d1;
+  --color-text-on-navy-muted: #7fa8bc;
+  --color-primary:      #3f9ed3;
+  --color-primary-soft: #e9f6fb;
+  --color-primary-deep: #2384b8;
+  --color-teal:         #159b86;
+  --color-teal-soft:    #e9f8f4;
+  --color-teal-deep:    #13806f;
+  --color-orange:       #ef9f27;
+  --color-orange-soft:  #fff2d9;
+  --color-orange-deep:  #9a6a00;
+  --color-grey-soft:    #eef2f3;
+  --color-grey-deep:    #667983;
+
+  /* Bagudkompatible aliases (bevar — brug ikke i ny kode) */
+  --color-smu-blue:     #3f9ed3;
+  --color-smu-navy:     #213746;
+  --color-smu-teal:     #159b86;
+  --color-smu-lightblue:#c4d9e9;
+  --color-smu-bluegray: #78909c;
+  --color-smu-bg:       #f4f2ed;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  background-color: #f4f2ed;
+  color: #213746;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ─── Kort ─── */
+.smu-card {
+  background-color: #ffffff;
+  border: 1px solid #e4e0d8;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(33, 55, 70, 0.06);
+}
+
+/* ─── Badges ─── */
+.smu-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1;
+  padding: 5px 10px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.smu-badge-blue   { background: #e9f6fb; color: #2384b8; }
+.smu-badge-green  { background: #e9f8f4; color: #13806f; }
+.smu-badge-orange { background: #fff2d9; color: #9a6a00; }
+.smu-badge-grey   { background: #eef2f3; color: #667983; }
+.smu-badge-red    { background: #fde7e7; color: #b53b3b; }
+.smu-badge-violet { background: #efe9fb; color: #6b3aa3; }
+
+/* ─── Knapper ─── */
+.smu-btn-primary {
+  background: #3f9ed3;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 9px 16px;
+  letter-spacing: 0.01em;
+  transition: filter 120ms ease;
+}
+.smu-btn-primary:hover { filter: brightness(0.95); }
+.smu-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.smu-btn-secondary {
+  background: #ffffff;
+  color: #213746;
+  border: 1px solid #e4e0d8;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 14px;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.smu-btn-secondary:hover { background: #f9f7f3; border-color: #cdc7bb; }
+.smu-btn-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Positiv handling (godkend) — teal, jf. semantisk regel */
+.smu-btn-success {
+  background: #159b86;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 9px 16px;
+  letter-spacing: 0.01em;
+  transition: filter 120ms ease;
+}
+.smu-btn-success:hover { filter: brightness(0.96); }
+.smu-btn-success:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.smu-btn-ghost {
+  background: transparent;
+  color: #3f9ed3;
+  font-weight: 700;
+  font-size: 12px;
+}
+.smu-btn-ghost:hover { color: #2384b8; }
+
+/* ─── Formularer ─── */
+.smu-input {
+  background: #ffffff;
+  border: 1px solid #e4e0d8;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #213746;
+  font-size: 13px;
+  padding: 8px 12px;
+  width: 100%;
+}
+.smu-input:focus { outline: none; border-color: #3f9ed3; }
+
+.smu-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #78909c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+/* ─── Tekst- og layout-hjælpeklasser (så komponenter undgår rå hex) ─── */
+.smu-page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: #213746; }
+.smu-h1        { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #213746; }
+.smu-h2        { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #213746; }
+.smu-eyebrow   { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #78909c; }
+.smu-meta      { font-size: 12px; font-weight: 600; color: #78909c; }
+.smu-error     { font-size: 12px; font-weight: 700; color: #b53b3b; }
+.smu-th        { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #78909c; text-align: left; }
+
+.smu-link      { color: #3f9ed3; font-weight: 700; text-decoration: none; }
+.smu-link:hover{ color: #2384b8; text-decoration: underline; }
+
+/* Klikbare list-kort / tabelrækker med blød hover */
+.smu-list-card { transition: background-color 120ms ease; }
+.smu-list-card:hover { background-color: #f9f7f3; }
+.smu-tr { transition: background-color 120ms ease; }
+.smu-tr:hover { background-color: #f9f7f3; }
+
+/* ─── Notice-bokse (info/advarsel/ok) ─── */
+.smu-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1px solid;
+}
+.smu-notice-info { background: #e9f6fb; border-color: #bfe3f2; color: #1c5f80; }
+.smu-notice-warn { background: #fff2d9; border-color: #f2ddab; color: #7a5500; }
+.smu-notice-ok   { background: #e9f8f4; border-color: #bfe6da; color: #13806f; }
