@@ -15,9 +15,25 @@ Navet og den kanoniske kilde er **`smu-os-v2`**; nærmeste tekniske skabelon er
 - **Tabel-prefix:** denne app bruger **`apv_`** i det delte Supabase-projekt.
   `profiler` + `auth.users` deles på tværs af apps — læs dem, opret dem ikke igen.
 
-## Status — Fase 0 (scaffold) færdig
+## Status — Fase 1 (databasefundament) kørt
 
-Teknisk fundament er på plads. **Ingen** database, seed eller APV-features endnu.
+Fase 0 (scaffold) + Fase 1 (database) er på plads. **Ingen** seed eller APV-UI endnu.
+
+**Fase 1 — migrationer kørt i det delte Supabase-projekt** (`supabase/migrations/`):
+- `..._apv_skema.sql` — 9 tabeller (`apv_omraader/kemikalier/maskiner/paabud/fund/
+  eftersyn/krv/handlinger/forslag`) + hjælpefunktioner (`apv_er_admin`,
+  `apv_risikoniveau`, `apv_touch_updated_at`, `apv_forslag_set_navn`) + triggers.
+- `..._apv_views.sql` — `apv_fund_beriget` (risikoniveau) + `apv_maskiner_beriget`
+  (seneste/næste eftersyn), begge `security_invoker`.
+- `..._apv_rls.sql` — GRANTs + 26 RLS-policies (fail-closed; admin-only writes;
+  ingen hard delete).
+- `..._apv_forslag_funktioner.sql` — `apv_godkend_forslag()` (whitelist, ingen
+  dynamic SQL, `ret` nulstiller nullable felter via JSONB-key-presence) +
+  `apv_afvis_forslag()`.
+- **Manuelt krav:** en bruger skal have `rolle='admin'` + `aktiv=true` i `profiler`
+  for at kunne godkende/afvise.
+
+### Fase 0 — scaffold
 
 Opsat:
 - Vite 8 + React 19 + TypeScript (strict, `noUnusedLocals`/`noUnusedParameters`).
