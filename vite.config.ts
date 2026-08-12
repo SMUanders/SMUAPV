@@ -7,4 +7,8 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  // Respektér en tildelt PORT (fx fra preview-harness). Ellers Vites standard.
+  server: {
+    port: process.env.PORT ? Number(process.env.PORT) : undefined,
+  },
 })

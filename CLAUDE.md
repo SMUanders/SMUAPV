@@ -15,9 +15,32 @@ Navet og den kanoniske kilde er **`smu-os-v2`**; nærmeste tekniske skabelon er
 - **Tabel-prefix:** denne app bruger **`apv_`** i det delte Supabase-projekt.
   `profiler` + `auth.users` deles på tværs af apps — læs dem, opret dem ikke igen.
 
-## Status — Fase 1 (databasefundament) kørt
+## Status — Fase 2 + opslagsværk kørt
 
-Fase 0 (scaffold) + Fase 1 (database) er på plads. **Ingen** seed eller APV-UI endnu.
+Fase 0 (scaffold) → Fase 1 (database) → Fase 2 (fund forslag→godkendelse) →
+opslags-fase (kemikalier/maskiner/påbud + søgning + Excel-seed) er alle kørt/
+integreret i det delte Supabase-projekt.
+
+**Opslags-fase — UI + data:**
+- `/` er nu opslags-forside: stor søgning på tværs af kemikalier/maskiner/fund/
+  påbud + indgangskort. Ingen BI-dashboard.
+- Læsesider: `/kemikalier` (+ KRV kontekstuelt), `/maskiner` (seneste/næste
+  eftersyn via `apv_maskiner_beriget`), `/paabud`, `/fund`. Delte visnings-
+  primitiver i `src/components/Vis.tsx`; datalag udvidet i `src/lib/apvApi.ts`.
+- Migrationer: `..._apv_opslag_felter.sql` (additive kolonner: kemikalier
+  `forbrug/lagermaengde/arbejdsprocedure`, maskiner `note`),
+  `..._apv_seed_excel.sql` (konkrete Excel-rækker — kun udfyldte; ingen
+  `#VALUE!`-piktogrammer), `..._apv_seed_dokumenter.sql` (SDS/manual/tjekliste/
+  påbud-links fra Excels hyperlinks). Dokumenter er link/reference — **ikke**
+  fil-upload (Supabase Storage er stadig V2).
+- Faglig troskab: H-sætninger, PPE, blandingsforhold og datoer er gengivet ordret
+  fra `APV Signmeup.xlsx`.
+
+**Fase 2 — fund forslag→godkendelse (UI):**
+- Fund-register (`/fund` liste + detalje), foreslå nyt fund/ændring (skriver kun
+  til `apv_forslag`), `/mine-forslag`, admin-indbakke `/admin/forslag` (diff +
+  godkend/afvis via RPC). `..._apv_fund_afventende_forslag.sql` — boolean-tjek, så
+  alle kan se et diskret "afventer"-banner uden at se forslagets indhold.
 
 **Fase 1 — migrationer kørt i det delte Supabase-projekt** (`supabase/migrations/`):
 - `..._apv_skema.sql` — 9 tabeller (`apv_omraader/kemikalier/maskiner/paabud/fund/
@@ -51,11 +74,11 @@ Opsat:
 
 - **Roller (bevist behov):** APV bruger medarbejder/admin-adskillelse med
   **forslag → admin-godkendelse** (som Wiki). Afviger fra standardens udgangspunkt
-  "ingen roller". Håndhæves i både RLS og frontend, når databasen bygges.
+  "ingen roller". Håndhæves i både RLS og frontend.
 - **Ingen tests endnu** (Vitest ikke opsat i scaffold-fasen — kan tilføjes).
 - Node 25 lokalt; builds pinnes til **Node 20** (`.nvmrc` + `netlify.toml`).
 
-## Datamodel (jf. DOMAIN_MODEL.md — bygges i senere faser)
+## Datamodel (jf. DOMAIN_MODEL.md)
 
 Autoritative, typed `apv_`-tabeller: `apv_fund`, `apv_handlinger`, `apv_omraader`,
 `apv_kemikalier`, `apv_krv`, `apv_maskiner`, `apv_eftersyn`, `apv_paabud` +
@@ -63,6 +86,11 @@ Autoritative, typed `apv_`-tabeller: `apv_fund`, `apv_handlinger`, `apv_omraader
 Alle med `slettet` (soft-delete) + audit (`created_by`/`updated_by` = `auth.uid()`)
 + RLS `to authenticated`. Beregnede værdier (risikoscore/-niveau, seneste/næste
 eftersyn) indtastes aldrig.
+
+**Additive felter (opslags-fase):** `apv_kemikalier` fik `forbrug`,
+`lagermaengde`, `arbejdsprocedure`; `apv_maskiner` fik `note` (fra Excel).
+Forslags-whitelisten (`apv_godkend_forslag`) er **ikke** udvidet med disse endnu —
+gøres først når kemikalie-/maskine-redigering bygges som workflow.
 
 ## Ved reskin / design-arbejde — LÆS FØRST
 1. **Læs `SMU_DESIGN_SYSTEM.md` FØR du ændrer styling.**

@@ -145,17 +145,20 @@ Kemisk produkt med SDS/CLP-oplysninger.
 | `produktnavn text` | |
 | `leverandoer text` | |
 | `sds_dato date` | Dato på sikkerhedsdatablad |
-| `h_saetninger text[]` | CLP H-sætninger |
-| `piktogrammer text[]` | Farepiktogrammer (Excel `#VALUE!` renses væk) |
+| `h_saetninger jsonb` | CLP H-sætninger (liste; jsonb for ensartet forslags-pipeline) |
+| `piktogrammer jsonb` | Farepiktogrammer (Excel `#VALUE!` importeres ikke → tom liste) |
 | `anvendelse text` | Proces/anvendelse |
+| `forbrug text` | Forbrug pr. uge (additivt felt fra Excel) |
+| `lagermaengde text` | Lagermængde (additivt felt fra Excel) |
 | `opbevaringssted text` | |
 | `ppe text` | Værnemidler |
 | `eksponeringsveje text` | Hud/ånding/øjne |
 | `ventilation text` | Lokal/rum/ingen |
 | `substitution_mulig boolean` | |
 | `affald text` | Bortskaffelse |
-| `dokumenter jsonb` | SDS-reference |
-| `aktiv boolean` + audit | |
+| `arbejdsprocedure text` | Arbejdsprocedure/instruks (additivt felt fra Excel) |
+| `dokumenter jsonb` | SDS + arbejdsprocedure (link/reference) |
+| `slettet boolean` + audit | |
 
 **Relation:** 1 kemikalie → mange **KRV**.
 
@@ -205,8 +208,9 @@ udledes af eftersynsloggen (§5).
 | `eftersyn_interval_mdr int` | Interval mellem eftersyn |
 | `daglig_tjek boolean` | Kræver dagligt tjek |
 | `status text` | fx `ok` / `anmaerkning` / `ude_af_drift` |
-| `dokumenter jsonb` | Brugsanvisning/tjekliste/foto |
-| `aktiv boolean` + audit | |
+| `note text` | Fri note (fx instruksskilt) — additivt felt fra Excel |
+| `dokumenter jsonb` | Brugsanvisning/tjekliste/foto (link/reference) |
+| `slettet boolean` + audit | |
 
 **Afledte, ikke-lagrede felter** (beregnes ved læsning, §5):
 - `seneste_eftersyn` = dato på nyeste relevante eftersynspost.

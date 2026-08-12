@@ -35,9 +35,15 @@ export default function Header() {
           <span className="text-white font-extrabold text-[15px] tracking-[-0.03em]">SMU APV</span>
         </NavLink>
 
-        {/* Navigation (shell — udbygges pr. fase) */}
+        {/* Navigation — opslagsområderne */}
         <nav className="flex items-center gap-1 flex-1 overflow-x-auto">
           <NavLink to="/" end className={navClass}>Forside</NavLink>
+          <NavLink to="/kemikalier" className={navClass}>Kemikalier</NavLink>
+          <NavLink to="/maskiner" className={navClass}>Maskiner</NavLink>
+          <NavLink to="/fund" className={navClass}>Fund</NavLink>
+          <NavLink to="/paabud" className={navClass}>Påbud</NavLink>
+          <NavLink to="/mine-forslag" className={navClass}>Mine forslag</NavLink>
+          {admin && <NavLink to="/admin/forslag" className={navClass}>Forslag</NavLink>}
         </nav>
 
         {/* Bruger + logout */}

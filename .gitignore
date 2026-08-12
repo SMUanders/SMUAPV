@@ -23,5 +23,9 @@ dist-ssr
 # Netlify
 .netlify
 
+# Claude Code harness / lokal config — behold kun launch.json (dev-server-config)
+.claude/*
+!.claude/launch.json
+
 # TS build info
 *.tsbuildinfo
