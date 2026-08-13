@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle } from 'lucide-react'
-import { hentMaskineEnkelt, hentOmraader, hentPersoner, type PersonKort } from '../lib/apvApi'
-import type { Maskine, Omraade } from '../types/apv'
+import { ArrowLeft, AlertTriangle, ClipboardCheck } from 'lucide-react'
+import {
+  hentMaskineEnkelt, hentOmraader, hentPersoner, hentDagligeTjek, type PersonKort,
+} from '../lib/apvApi'
+import type { Maskine, Omraade, DagligtTjek } from '../types/apv'
 import { MASKINE_STATUS_LABEL, maskineStatusBadge } from '../types/apv'
 import { Raekke, Afsnit, Dokumenter } from '../components/Vis'
-import { dkDato } from '../lib/format'
+import { dkDato, dkDatoTid } from '../lib/format'
 
 export default function MaskineDetalje() {
   const { id } = useParams<{ id: string }>()
   const [m, setM] = useState<Maskine | null>(null)
   const [omraader, setOmraader] = useState<Omraade[]>([])
   const [personer, setPersoner] = useState<PersonKort[]>([])
+  const [tjek, setTjek] = useState<DagligtTjek[]>([])
   const [loading, setLoading] = useState(true)
   const [fejl, setFejl] = useState('')
 
   useEffect(() => {
     if (!id) return
-    Promise.all([hentMaskineEnkelt(id), hentOmraader(), hentPersoner()])
-      .then(([ma, o, p]) => { setM(ma); setOmraader(o); setPersoner(p) })
+    Promise.all([hentMaskineEnkelt(id), hentOmraader(), hentPersoner(), hentDagligeTjek(id)])
+      .then(([ma, o, p, t]) => { setM(ma); setOmraader(o); setPersoner(p); setTjek(t) })
       .catch(e => setFejl(e.message ?? 'Kunne ikke hente maskinen.'))
       .finally(() => setLoading(false))
   }, [id])
@@ -48,6 +51,37 @@ export default function MaskineDetalje() {
           <p className="smu-meta text-[13px] mt-1">{m.fabrikat_model ?? m.type ?? '—'}</p>
         </div>
         <span className={maskineStatusBadge(m.status)}>{MASKINE_STATUS_LABEL[m.status]}</span>
+      </div>
+
+      {/* Dagligt tjek */}
+      <div className="smu-card p-5">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <p className="smu-eyebrow">Dagligt tjek</p>
+          <Link to={`/maskiner/${m.id}/dagligt-tjek`} className="smu-btn-primary inline-flex items-center gap-1.5">
+            <ClipboardCheck size={15} /> Dagligt tjek
+          </Link>
+        </div>
+        {tjek.length === 0 ? (
+          <p className="smu-meta text-[13px]">Ingen daglige tjek endnu.</p>
+        ) : (
+          <div className="space-y-2">
+            {tjek.slice(0, 5).map(t => (
+              <Link key={t.id} to={`/maskiner/${m.id}/tjek/${t.id}`}
+                className="smu-list-card block rounded-lg px-3 py-2.5 no-underline">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="text-[13.5px] font-bold text-navy">{dkDatoTid(t.created_at)}</span>
+                    <span className="smu-meta text-[12px] ml-2">{t.udfoert_af_navn ?? '—'}</span>
+                  </span>
+                  <span className={t.status === 'fejl' ? 'smu-badge smu-badge-red' : 'smu-badge smu-badge-green'}>
+                    {t.status === 'fejl' ? 'Fejl' : 'Godkendt'}
+                  </span>
+                </div>
+              </Link>
+            ))}
+            {tjek.length > 5 && <p className="smu-meta text-[12px]">Viser seneste 5 af {tjek.length}.</p>}
+          </div>
+        )}
       </div>
 
       <div className="smu-card p-5 space-y-1">

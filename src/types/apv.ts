@@ -328,3 +328,58 @@ export interface Paabud {
   dokumenter: Dokument[]
   slettet: boolean
 }
+
+// ─── Daglig tjekliste for sakselifte ───
+export type TjekResultat = 'ok' | 'fejl' | 'ikke_relevant'
+export type TjekStatus = 'godkendt' | 'fejl'
+
+export const TJEK_RESULTAT_LABEL: Record<TjekResultat, string> = {
+  ok: 'OK',
+  fejl: 'Fejl',
+  ikke_relevant: 'Ikke relevant',
+}
+
+export interface DagligtTjek {
+  id: string
+  maskine_id: string
+  dato: string
+  udfoert_af_id: string | null
+  udfoert_af_navn: string | null
+  status: TjekStatus
+  note: string | null
+  created_at: string
+  created_by: string | null
+}
+
+export interface DagligtTjekPunkt {
+  id: string
+  tjek_id: string
+  punkt_nr: number
+  punkt_tekst: string
+  resultat: TjekResultat
+  note: string | null
+  foto_path: string | null
+}
+
+export interface Kontrolpunkt {
+  nr: number
+  tekst: string
+  kritisk?: boolean
+}
+
+// Kilde: "Foer ibrugtagning lift.pdf" (Skyjack SJIII-3215) — ordret gengivet.
+// Bemærk: PDF'en springer nr. 10 over; det er bevaret (ingen opfundet punkt 10).
+// Punkt 1 og 2 er kritiske jf. instruksens regel: rækværk skal ALTID være oppe og låst.
+export const LIFT_KONTROLPUNKTER: Kontrolpunkt[] = [
+  { nr: 1, tekst: 'Gelænder/hånd-, knæ- og fodliste er OPPE og intakte', kritisk: true },
+  { nr: 2, tekst: 'Låsesplitter og hængsler til gelænder/port er hele og LÅST', kritisk: true },
+  { nr: 3, tekst: 'Platformens dør/port lukker og låser korrekt' },
+  { nr: 4, tekst: 'Nødstop og betjeningspanel funktionstestes (op/ned, stop)' },
+  { nr: 5, tekst: 'Mærkater/lastskilt læselige; max. last respekteres' },
+  { nr: 6, tekst: 'Visuel inspektion for skader/defekter (sprækker/buler/utætheder)' },
+  { nr: 7, tekst: 'Hjul/dæk i orden; ingen lækager' },
+  { nr: 8, tekst: 'Batteri/strøm OK; ladekabel uden synlige skader' },
+  { nr: 9, tekst: 'Underlag plant og bæredygtigt; støtteben efter behov' },
+  { nr: 11, tekst: 'Arbejdsområde afspærret; risiko for klemning/kollision vurderet' },
+  { nr: 12, tekst: 'Kun instruerede/uddannede operatører; instruks gennemgået' },
+]

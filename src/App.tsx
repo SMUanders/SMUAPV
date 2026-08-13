@@ -8,6 +8,9 @@ import KemikalieListe from './pages/KemikalieListe'
 import KemikalieDetalje from './pages/KemikalieDetalje'
 import MaskineListe from './pages/MaskineListe'
 import MaskineDetalje from './pages/MaskineDetalje'
+import DagligtTjek from './pages/DagligtTjek'
+import DagligtTjekVis from './pages/DagligtTjekVis'
+import VaelgLift from './pages/VaelgLift'
 import PaabudListe from './pages/PaabudListe'
 import PaabudDetalje from './pages/PaabudDetalje'
 import FundListe from './pages/FundListe'
@@ -33,6 +36,9 @@ export default function App() {
             <Route path="/kemikalier/:id" element={<KemikalieDetalje />} />
             <Route path="/maskiner" element={<MaskineListe />} />
             <Route path="/maskiner/:id" element={<MaskineDetalje />} />
+            <Route path="/maskiner/:id/dagligt-tjek" element={<DagligtTjek />} />
+            <Route path="/maskiner/:id/tjek/:tjekId" element={<DagligtTjekVis />} />
+            <Route path="/dagligt-tjek" element={<VaelgLift />} />
             <Route path="/paabud" element={<PaabudListe />} />
             <Route path="/paabud/:id" element={<PaabudDetalje />} />
             <Route path="/fund" element={<FundListe />} />

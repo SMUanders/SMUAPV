@@ -54,6 +54,19 @@ function erPdf(d: Dokument): boolean {
   return false
 }
 
+/** Har dokumentet en brugbar kilde (offentligt link eller privat bucket+path)? */
+function harKilde(d: Dokument): boolean {
+  return !!d.url || !!(d.bucket && d.path)
+}
+
+/** Læsbar label — aldrig en rå URL som primær tekst. */
+function dokumentLabel(d: Dokument): string {
+  if (d.navn && d.navn.trim()) return d.navn.trim()
+  const sti = d.path || d.url || ''
+  const fil = decodeURIComponent(sti.split('?')[0].split('/').pop() ?? '')
+  return fil || 'Dokument'
+}
+
 /** Dokumentreferencer. PDF'er vises indlejret i appen (uanset browserens
  *  download-indstilling); private hentes via signeret URL. Ikke-PDF-links
  *  (fx fotoalbum) åbnes i ny fane. */
@@ -84,23 +97,22 @@ export function Dokumenter({ dokumenter }: { dokumenter: Dokument[] }) {
   return (
     <>
       <ul className="space-y-1.5">
-        {dokumenter.map((d, i) => {
-          const kilde = d.url || d.bucket
-          return (
-            <li key={i} className="flex items-center gap-2 text-[13px]">
-              <FileText size={14} className="text-text-muted shrink-0" />
-              {kilde ? (
-                <button type="button" onClick={() => aabn(d, i)} disabled={henterId === i}
-                  className="smu-link text-left disabled:opacity-60">
-                  {d.navn || d.url}{henterId === i ? ' …' : ''}
-                  {fejlId === i && <span className="smu-error ml-1">kunne ikke åbne</span>}
-                </button>
-              ) : (
-                <span className="font-semibold text-text">{d.navn}</span>
-              )}
-            </li>
-          )
-        })}
+        {dokumenter.map((d, i) => (
+          <li key={i} className="flex items-center gap-2 text-[13px]">
+            <FileText size={14} className="text-text-muted shrink-0" />
+            {harKilde(d) ? (
+              <button type="button" onClick={() => aabn(d, i)} disabled={henterId === i}
+                className="smu-link text-left disabled:opacity-60">
+                {dokumentLabel(d)}{henterId === i ? ' …' : ''}
+                {fejlId === i && <span className="smu-error ml-1">kunne ikke åbne</span>}
+              </button>
+            ) : (
+              <span className="smu-meta">
+                {dokumentLabel(d)} — <span className="font-bold text-orange-deep">dokument mangler</span>
+              </span>
+            )}
+          </li>
+        ))}
       </ul>
       {aktiv && <DokumentVis navn={aktiv.navn} url={aktiv.url} onLuk={() => setAktiv(null)} />}
     </>

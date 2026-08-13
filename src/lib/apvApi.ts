@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import type {
   Fund, FundPayload, Omraade, Forslag, ForslagEntitet, ForslagOperation,
-  Kemikalie, Krv, Maskine, Paabud,
+  Kemikalie, Krv, Maskine, Paabud, DagligtTjek, DagligtTjekPunkt, TjekResultat,
 } from '../types/apv'
 
 // =============================================================
@@ -214,6 +214,54 @@ export async function hentPaabudEnkelt(id: string): Promise<Paabud | null> {
     .from('apv_paabud').select('*').eq('id', id).maybeSingle()
   if (error) throw error
   return (data as Paabud) ?? null
+}
+
+// ─── Daglig tjekliste ───
+
+export interface TjekPunktInput {
+  punkt_nr: number
+  punkt_tekst: string
+  resultat: TjekResultat
+  note: string | null
+}
+
+/**
+ * Opret et dagligt tjek via RPC (eneste write-vej). Bruger, tidspunkt og samlet
+ * status fastsættes server-side; header + punkter oprettes atomisk.
+ * Returnerer id på det oprettede tjek.
+ */
+export async function opretDagligtTjek(
+  maskineId: string, punkter: TjekPunktInput[], note: string | null,
+): Promise<string> {
+  const { data, error } = await supabase.rpc('apv_opret_dagligt_tjek', {
+    p_maskine_id: maskineId, p_punkter: punkter, p_note: note,
+  })
+  if (error) throw error
+  return data as string
+}
+
+/** Historik af daglige tjek for en maskine (nyeste først). */
+export async function hentDagligeTjek(maskineId: string): Promise<DagligtTjek[]> {
+  const { data, error } = await supabase
+    .from('apv_daglige_tjek').select('*')
+    .eq('maskine_id', maskineId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data as DagligtTjek[]) ?? []
+}
+
+/** Ét tjek med alle punkter (read-only visning). */
+export async function hentDagligtTjek(
+  tjekId: string,
+): Promise<{ tjek: DagligtTjek | null; punkter: DagligtTjekPunkt[] }> {
+  const [h, p] = await Promise.all([
+    supabase.from('apv_daglige_tjek').select('*').eq('id', tjekId).maybeSingle(),
+    supabase.from('apv_daglige_tjek_punkter').select('*').eq('tjek_id', tjekId)
+      .order('punkt_nr', { ascending: true }),
+  ])
+  if (h.error) throw h.error
+  if (p.error) throw p.error
+  return { tjek: (h.data as DagligtTjek) ?? null, punkter: (p.data as DagligtTjekPunkt[]) ?? [] }
 }
 
 // ─── Storage: signeret URL til private dokumenter ───

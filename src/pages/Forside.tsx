@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, FlaskConical, Wrench, Gavel, ShieldAlert, ClipboardList } from 'lucide-react'
+import { Search, FlaskConical, Wrench, Gavel, ShieldAlert, ClipboardList, ClipboardCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { hentKemikalier, hentMaskiner, hentFund, hentPaabud } from '../lib/apvApi'
 import type { Kemikalie, Maskine, Fund, Paabud } from '../types/apv'
@@ -90,6 +90,7 @@ export default function Forside() {
       {/* Indgange */}
       {!sog.trim() && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto pt-2">
+          <Indgang til="/dagligt-tjek" ikon={<ClipboardCheck size={20} />} navn="Dagligt lift-tjek" />
           <Indgang til="/kemikalier" ikon={<FlaskConical size={20} />} navn="Kemikalier" antal={kemikalier.length} />
           <Indgang til="/maskiner" ikon={<Wrench size={20} />} navn="Maskiner" antal={maskiner.length} />
           <Indgang til="/kemikalier" ikon={<ClipboardList size={20} />} navn="KRV / arbejdsinstrukser" />

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -7,14 +7,17 @@ type Tilstand = 'login' | 'glemt' | 'sender_glemt' | 'glemt_sendt'
 
 export default function Login() {
   const { user, loading } = useAuth()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [tilstand, setTilstand] = useState<Tilstand>('login')
   const [fejl, setFejl] = useState('')
   const [loggerInd, setLoggerInd] = useState(false)
 
+  const retur = (location.state as { from?: string } | null)?.from ?? '/'
+
   if (loading) return null
-  if (user) return <Navigate to="/" replace />
+  if (user) return <Navigate to={retur} replace />
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
