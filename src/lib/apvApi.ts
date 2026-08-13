@@ -103,7 +103,7 @@ export function fundPayloadTilJson(p: FundPayload): Record<string, unknown> {
     ansvarlig_id: p.ansvarlig_id || null,
     status: p.status,
     deadline: p.deadline || null,
-    dokumenter: p.dokumenter.filter(d => d.navn.trim() || d.url.trim()),
+    dokumenter: p.dokumenter.filter(d => d.navn.trim() || (d.url ?? '').trim()),
   }
 }
 
@@ -214,4 +214,13 @@ export async function hentPaabudEnkelt(id: string): Promise<Paabud | null> {
     .from('apv_paabud').select('*').eq('id', id).maybeSingle()
   if (error) throw error
   return (data as Paabud) ?? null
+}
+
+// ─── Storage: signeret URL til private dokumenter ───
+// Bruges KUN til private buckets (fx apv-internt). RLS-select-policyen for
+// authenticated gater adgangen; ingen service-role i frontend.
+export async function signeretUrl(bucket: string, path: string): Promise<string> {
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60)
+  if (error) throw error
+  return data.signedUrl
 }

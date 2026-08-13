@@ -27,5 +27,8 @@ dist-ssr
 .claude/*
 !.claude/launch.json
 
+# Lokale APV-dokumenter/PDF'er (kopieret ind til Storage-upload — hører ikke i git)
+Gamle apv filer/
+
 # TS build info
 *.tsbuildinfo

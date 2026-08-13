@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
-import type { FundPayload, FundStatus, Omraade } from '../types/apv'
+import type { Dokument, FundPayload, FundStatus, Omraade } from '../types/apv'
 import { FUND_STATUS_LABEL } from '../types/apv'
 import type { PersonKort } from '../lib/apvApi'
 
@@ -182,8 +182,8 @@ function SkalaFelt({ label, value, onChange }: {
 }
 
 function DokumentFelter({ dokumenter, onChange }: {
-  dokumenter: { navn: string; url: string }[]
-  onChange: (d: { navn: string; url: string }[]) => void
+  dokumenter: Dokument[]
+  onChange: (d: Dokument[]) => void
 }) {
   function opdater(i: number, felt: 'navn' | 'url', val: string) {
     onChange(dokumenter.map((d, idx) => idx === i ? { ...d, [felt]: val } : d))
@@ -196,7 +196,7 @@ function DokumentFelter({ dokumenter, onChange }: {
           <div key={i} className="flex gap-2">
             <input className="smu-input flex-1" placeholder="Navn" value={d.navn}
               onChange={e => opdater(i, 'navn', e.target.value)} />
-            <input className="smu-input flex-1" placeholder="Link eller sti" value={d.url}
+            <input className="smu-input flex-1" placeholder="Link eller sti" value={d.url ?? ''}
               onChange={e => opdater(i, 'url', e.target.value)} />
             <button type="button" title="Fjern"
               onClick={() => onChange(dokumenter.filter((_, idx) => idx !== i))}

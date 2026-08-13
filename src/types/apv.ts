@@ -80,10 +80,16 @@ export function risikoBadge(n: Risikoniveau | null): string {
   }
 }
 
-/** Ét dokument = en reference (navn + url/sti). Fil-upload er V2. */
+/**
+ * Ét dokument = en reference. To former:
+ *  - offentligt/eksternt link → `url` (åbnes direkte).
+ *  - privat Storage-objekt → `bucket` + `path` (åbnes via signeret URL ved klik).
+ */
 export interface Dokument {
   navn: string
-  url: string
+  url?: string
+  bucket?: string
+  path?: string
 }
 
 /** Fund som det kommer fra view'et apv_fund_beriget (score/risikoniveau udledt). */

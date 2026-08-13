@@ -15,11 +15,23 @@ Navet og den kanoniske kilde er **`smu-os-v2`**; nærmeste tekniske skabelon er
 - **Tabel-prefix:** denne app bruger **`apv_`** i det delte Supabase-projekt.
   `profiler` + `auth.users` deles på tværs af apps — læs dem, opret dem ikke igen.
 
-## Status — Fase 2 + opslagsværk kørt
+## Status — Fase 2 + opslagsværk + dokument-Storage kørt
 
 Fase 0 (scaffold) → Fase 1 (database) → Fase 2 (fund forslag→godkendelse) →
-opslags-fase (kemikalier/maskiner/påbud + søgning + Excel-seed) er alle kørt/
-integreret i det delte Supabase-projekt.
+opslags-fase (kemikalier/maskiner/påbud + søgning + Excel-seed) → dokumenter
+flyttet til Supabase Storage — alle kørt/integreret i det delte Supabase-projekt.
+
+**Dokument-Storage:**
+- To buckets: `apv-offentligt` (public URLs: SDS, brugermanual, arbejdsprocedurer)
+  og `apv-internt` (privat: tjeklister, instrukser, påbud, besøgsrapport).
+- `apv-internt` har RLS-select-policy (`apv_internt_laes`, kun `authenticated`);
+  ingen skrive-policy → ingen frontend-upload. Upload sker via Dashboard.
+- `dokumenter`-felter: offentlige som `{navn,url}`, private som `{navn,bucket,path}`
+  (signeret URL ved klik via `signeretUrl()`). PDF'er vises i indlejret fremviser
+  (`Dokumenter`/`DokumentVis` i `Vis.tsx`); ikke-PDF-links åbnes i ny fane.
+- Migrationer: `..._apv_internt_storage_policy.sql`, `..._apv_dokumenter_storage.sql`
+  (erstatter OneDrive-linkene fra `..._apv_seed_dokumenter.sql`).
+- Fil-upload FRA appen er stadig ikke bygget (upload via Dashboard/service-role).
 
 **Opslags-fase — UI + data:**
 - `/` er nu opslags-forside: stor søgning på tværs af kemikalier/maskiner/fund/
