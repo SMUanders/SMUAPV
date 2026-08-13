@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full-bleed navy (ingen afrundede hjørner/gennemsigtighed) → egner sig til
+       apple-touch + maskable, hvor OS'et selv masker/afrunder. Motiv centreret i
+       den maskable "safe zone" (~inderste 80%). -->
+  <rect width="512" height="512" fill="#213746"/>
+  <g transform="translate(96,96) scale(10)">
+    <path d="M16 5.2l8.4 2.8v6.6c0 5.4-3.5 9.3-8.4 10.8-4.9-1.5-8.4-5.4-8.4-10.8V8L16 5.2Z" fill="#3f9ed3"/>
+    <path d="M12 15.6l2.9 2.9 5.3-5.8" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
