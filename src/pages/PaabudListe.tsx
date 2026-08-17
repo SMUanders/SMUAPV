@@ -44,6 +44,11 @@ export default function PaabudListe() {
                     {PAABUD_TYPE_LABEL[p.type]} · {p.myndighed}
                     {p.dato_modtaget && <> · modtaget {dkDato(p.dato_modtaget)}</>}
                   </p>
+                  {p.status !== 'afsluttet' && (!p.frist || !p.ansvarlig_id) && (
+                    <p className="text-[12px] mt-0.5 font-bold text-orange-deep">
+                      {[!p.ansvarlig_id && 'ansvarlig', !p.frist && 'frist'].filter(Boolean).join(' + ')} mangler
+                    </p>
+                  )}
                 </div>
               </div>
               <span className={paabudStatusBadge(p.status)}>{PAABUD_STATUS_LABEL[p.status]}</span>

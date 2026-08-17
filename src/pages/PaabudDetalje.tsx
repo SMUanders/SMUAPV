@@ -31,7 +31,14 @@ export default function PaabudDetalje() {
     </div>
   )
 
-  const ansvarligNavn = p.ansvarlig_id ? personer.find(pe => pe.id === p.ansvarlig_id)?.fuldt_navn ?? '—' : '—'
+  const aktiv = p.status !== 'afsluttet'
+  const mangler = <span className="font-bold text-orange-deep">mangler</span>
+  const ansvarligNavn: React.ReactNode = p.ansvarlig_id
+    ? personer.find(pe => pe.id === p.ansvarlig_id)?.fuldt_navn ?? '—'
+    : (aktiv ? <>Ansvarlig {mangler}</> : '—')
+  const fristVaerdi: React.ReactNode = p.frist
+    ? dkDato(p.frist)
+    : (aktiv ? <>Frist {mangler}</> : '—')
 
   return (
     <div className="space-y-5">
@@ -51,7 +58,7 @@ export default function PaabudDetalje() {
         <Raekke label="Type" værdi={PAABUD_TYPE_LABEL[p.type]} />
         <Raekke label="Myndighed" værdi={p.myndighed} />
         <Raekke label="Dato modtaget" værdi={p.dato_modtaget ? dkDato(p.dato_modtaget) : '—'} />
-        <Raekke label="Frist" værdi={p.frist ? dkDato(p.frist) : '—'} />
+        <Raekke label="Frist" værdi={fristVaerdi} />
         <Raekke label="Ansvarlig" værdi={ansvarligNavn} />
         <Raekke label="Tilbagemelding til AT" værdi={p.dato_tilbagemelding ? dkDato(p.dato_tilbagemelding) : '—'} />
       </div>

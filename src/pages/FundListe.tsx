@@ -5,7 +5,9 @@ import { hentFund, hentOmraader, hentPersoner, type PersonKort } from '../lib/ap
 import type { Fund, Omraade, FundStatus, Risikoniveau } from '../types/apv'
 import { FUND_STATUS_LABEL } from '../types/apv'
 import { RisikoBadge, FundStatusBadge } from '../components/Badges'
-import { dkDato } from '../lib/format'
+import { dkDato, erFortid } from '../lib/format'
+
+const AABEN_FUND: FundStatus[] = ['ny', 'i_gang']
 
 const RISIKO_RÆKKE: Record<Risikoniveau, number> = { kritisk: 0, hoej: 1, middel: 2, lav: 3 }
 
@@ -89,9 +91,15 @@ export default function FundListe() {
                 <div className="min-w-0">
                   <p className="text-[15px] font-extrabold text-navy truncate">{f.titel}</p>
                   <p className="smu-meta text-[12px] mt-0.5">
-                    {f.omraade_id ? (omraadeNavn[f.omraade_id] ?? '—') : 'Uden område'}
+                    {f.omraade_id
+                      ? (omraadeNavn[f.omraade_id] ?? '—')
+                      : <span className="font-bold text-orange-deep">Område mangler</span>}
                     {f.ansvarlig_id && <> · {personNavn[f.ansvarlig_id] ?? '—'}</>}
-                    {f.deadline && <> · frist {dkDato(f.deadline)}</>}
+                    {f.deadline && (
+                      AABEN_FUND.includes(f.status) && erFortid(f.deadline)
+                        ? <> · <span className="font-bold text-[#b53b3b]">Frist overskredet {dkDato(f.deadline)}</span></>
+                        : <> · frist {dkDato(f.deadline)}</>
+                    )}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">

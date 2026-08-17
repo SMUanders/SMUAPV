@@ -79,11 +79,12 @@ export default function DagligtTjek() {
       </Link>
 
       <div>
-        <p className="smu-eyebrow">Dagligt tjek</p>
+        <p className="smu-eyebrow">Kontrol før brug</p>
         <h1 className="smu-h1 mt-1">{maskine.navn}</h1>
         <p className="smu-meta text-[13px] mt-1">
           {nu} · {profil?.fuldt_navn ?? 'Ukendt bruger'}
         </p>
+        <p className="smu-meta text-[12px] mt-1">Kontrollen udføres, inden liften tages i brug.</p>
       </div>
 
       {harFejl && (
@@ -147,7 +148,7 @@ export default function DagligtTjek() {
           </p>
           <button onClick={godkend} disabled={!alleBesvaret || busy}
             className={harFejl ? 'smu-btn-secondary' : 'smu-btn-success'}>
-            {busy ? 'Gemmer…' : harFejl ? 'Registrér tjek (fejl)' : 'Godkend tjek'}
+            {busy ? 'Gemmer…' : harFejl ? 'Registrér kontrol (fejl)' : 'Godkend kontrol'}
           </button>
         </div>
       </div>

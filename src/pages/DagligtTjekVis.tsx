@@ -51,7 +51,7 @@ export default function DagligtTjekVis() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <p className="smu-eyebrow">Dagligt tjek</p>
+          <p className="smu-eyebrow">Kontrol før brug</p>
           <h1 className="smu-h1 mt-1">{dkDatoTid(tjek.created_at)}</h1>
           <p className="smu-meta text-[13px] mt-1">{tjek.udfoert_af_navn ?? 'Ukendt bruger'}</p>
         </div>

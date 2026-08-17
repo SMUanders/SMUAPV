@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { hentMaskiner, hentSenesteTjekPrMaskine, type SenesteTjek } from '../lib/apvApi'
 import type { Maskine } from '../types/apv'
+import { kontrolStatus } from '../lib/format'
 import LiftKort from '../components/LiftKort'
 
-// Sorterings-rang: fejl først, så ikke-tjekket, så godkendt.
+// Sorterings-rang efter DAGENS kontrol: fejl → ikke kontrolleret i dag → godkendt.
 function rang(t: SenesteTjek | null): number {
-  if (t?.status === 'fejl') return 0
-  if (!t) return 1
-  return 2
+  const ks = kontrolStatus(t)
+  return ks === 'fejl' ? 0 : ks === 'ikke_i_dag' ? 1 : 2
 }
 
 export default function VaelgLift() {
@@ -36,9 +36,9 @@ export default function VaelgLift() {
   return (
     <div className="space-y-5 max-w-xl mx-auto">
       <div>
-        <p className="smu-eyebrow">Dagligt tjek</p>
-        <h1 className="smu-page-title mt-1">Dagligt lift-tjek</h1>
-        <p className="smu-meta text-[13px] mt-2">Vælg den lift, du skal bruge, og gennemfør før-ibrug-kontrollen.</p>
+        <p className="smu-eyebrow">Kontrol før brug</p>
+        <h1 className="smu-page-title mt-1">Lift – kontrol før brug</h1>
+        <p className="smu-meta text-[13px] mt-2">Vælg den lift, du skal bruge, og gennemfør kontrollen, inden liften tages i brug.</p>
       </div>
 
       {fejl && <div className="smu-notice smu-notice-warn"><AlertTriangle size={15} />{fejl}</div>}

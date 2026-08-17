@@ -6,7 +6,7 @@ import {
 } from '../lib/apvApi'
 import type { Fund, Omraade } from '../types/apv'
 import { RisikoBadge, FundStatusBadge } from '../components/Badges'
-import { dkDato } from '../lib/format'
+import { dkDato, erFortid } from '../lib/format'
 
 export default function FundDetalje() {
   const { id } = useParams<{ id: string }>()
@@ -35,10 +35,13 @@ export default function FundDetalje() {
     </div>
   )
 
-  const omraadeNavn = fund.omraade_id
-    ? omraader.find(o => o.id === fund.omraade_id)?.navn ?? '—' : 'Uden område'
+  const omraadeNavn: React.ReactNode = fund.omraade_id
+    ? omraader.find(o => o.id === fund.omraade_id)?.navn ?? '—'
+    : <span className="font-bold text-orange-deep">Område mangler</span>
   const ansvarligNavn = fund.ansvarlig_id
     ? personer.find(p => p.id === fund.ansvarlig_id)?.fuldt_navn ?? '—' : '—'
+  const aabenFund = fund.status === 'ny' || fund.status === 'i_gang'
+  const fristOverskredet = aabenFund && erFortid(fund.deadline)
 
   return (
     <div className="space-y-5">
@@ -70,7 +73,12 @@ export default function FundDetalje() {
         <Række label="Område" værdi={omraadeNavn} />
         <Række label="Ansvarlig" værdi={ansvarligNavn} />
         <Række label="Status" værdi={<FundStatusBadge status={fund.status} />} />
-        <Række label="Deadline" værdi={fund.deadline ? dkDato(fund.deadline) : '—'} />
+        <Række label="Deadline" værdi={
+          fund.deadline
+            ? (fristOverskredet
+                ? <span className="font-bold text-[#b53b3b]">Frist overskredet {dkDato(fund.deadline)}</span>
+                : dkDato(fund.deadline))
+            : '—'} />
       </div>
 
       <div className="smu-card p-5 space-y-3">

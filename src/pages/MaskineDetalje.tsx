@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle, ClipboardCheck } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, ClipboardCheck, ShieldAlert } from 'lucide-react'
 import {
   hentMaskineEnkelt, hentOmraader, hentPersoner, hentDagligeTjek, type PersonKort,
 } from '../lib/apvApi'
 import type { Maskine, Omraade, DagligtTjek } from '../types/apv'
 import { MASKINE_STATUS_LABEL, maskineStatusBadge } from '../types/apv'
 import { Raekke, Afsnit, Dokumenter } from '../components/Vis'
-import { dkDato, dkDatoTid } from '../lib/format'
+import { dkDato, dkDatoTid, dkTid, erFortid, kontrolStatus } from '../lib/format'
 
 export default function MaskineDetalje() {
   const { id } = useParams<{ id: string }>()
@@ -37,6 +37,8 @@ export default function MaskineDetalje() {
 
   const omraadeNavn = m.omraade_id ? omraader.find(o => o.id === m.omraade_id)?.navn ?? '—' : '—'
   const ansvarligNavn = m.ansvarlig_id ? personer.find(p => p.id === m.ansvarlig_id)?.fuldt_navn ?? '—' : '—'
+  const ks = kontrolStatus(tjek[0] ?? null)
+  const eftersynForfaldet = erFortid(m.naeste_eftersyn)
 
   return (
     <div className="space-y-5">
@@ -53,16 +55,34 @@ export default function MaskineDetalje() {
         <span className={maskineStatusBadge(m.status)}>{MASKINE_STATUS_LABEL[m.status]}</span>
       </div>
 
-      {/* Dagligt tjek */}
+      {/* Kontrol før brug */}
       <div className="smu-card p-5">
         <div className="flex items-center justify-between gap-3 mb-3">
-          <p className="smu-eyebrow">Dagligt tjek</p>
+          <p className="smu-eyebrow">Kontrol før brug</p>
           <Link to={`/maskiner/${m.id}/dagligt-tjek`} className="smu-btn-primary inline-flex items-center gap-1.5">
-            <ClipboardCheck size={15} /> Dagligt tjek
+            <ClipboardCheck size={15} /> Start kontrol før brug
           </Link>
         </div>
+
+        {/* Dagens status (kontrol før brug gælder i dag) */}
+        <div className="mb-4">
+          {ks === 'fejl' ? (
+            <div className="smu-notice smu-notice-warn !bg-[#fde7e7] !border-[#f2c4c4] !text-[#b53b3b]">
+              <ShieldAlert size={15} /> Fejl i dagens kontrol – liften må ikke anvendes.
+            </div>
+          ) : ks === 'godkendt' ? (
+            <p className="text-[13px] font-bold text-teal-deep">
+              Kontrolleret i dag · Godkendt kl. {dkTid(tjek[0].created_at)}
+              {tjek[0].udfoert_af_navn ? ` · ${tjek[0].udfoert_af_navn}` : ''}
+            </p>
+          ) : (
+            <p className="smu-meta text-[13px]">Ikke kontrolleret i dag.</p>
+          )}
+        </div>
+
+        <p className="smu-eyebrow mb-2">Kontrolhistorik</p>
         {tjek.length === 0 ? (
-          <p className="smu-meta text-[13px]">Ingen daglige tjek endnu.</p>
+          <p className="smu-meta text-[13px]">Ingen kontroller endnu.</p>
         ) : (
           <div className="space-y-2">
             {tjek.slice(0, 5).map(t => (
@@ -91,12 +111,17 @@ export default function MaskineDetalje() {
         <Raekke label="Årgang" værdi={m.aargang} />
         <Raekke label="Område / lokation" værdi={omraadeNavn} />
         <Raekke label="Ansvarlig" værdi={ansvarligNavn} />
-        <Raekke label="Dagligt tjek" værdi={m.daglig_tjek ? 'Ja' : 'Nej'} />
+        <Raekke label="Kræver kontrol før brug" værdi={m.daglig_tjek ? 'Ja' : 'Nej'} />
       </div>
 
-      {/* Eftersyn */}
+      {/* Periodisk eftersyn (adskilt fra kontrol før brug) */}
       <div className="smu-card p-5">
-        <p className="smu-eyebrow mb-3">Eftersyn</p>
+        <p className="smu-eyebrow mb-3">Periodisk eftersyn</p>
+        {eftersynForfaldet && (
+          <div className="smu-notice smu-notice-warn mb-3">
+            <AlertTriangle size={15} /> Eftersyn forfaldet — beregnet næste eftersyn var {dkDato(m.naeste_eftersyn)}.
+          </div>
+        )}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <span className="smu-label">Interval</span>
@@ -108,10 +133,14 @@ export default function MaskineDetalje() {
           </div>
           <div>
             <span className="smu-label">Næste eftersyn</span>
-            <p className="text-[16px] font-extrabold text-navy">{m.naeste_eftersyn ? dkDato(m.naeste_eftersyn) : '—'}</p>
+            <p className={`text-[16px] font-extrabold ${eftersynForfaldet ? 'text-orange-deep' : 'text-navy'}`}>
+              {m.naeste_eftersyn ? dkDato(m.naeste_eftersyn) : '—'}
+            </p>
           </div>
         </div>
-        <p className="smu-meta text-[11px] mt-3">Seneste og næste eftersyn beregnes ud fra eftersynsloggen og maskinens interval.</p>
+        <p className="smu-meta text-[11px] mt-3">
+          Beregnes ud fra seneste registrerede eftersyn + interval. Er der udført et nyere eftersyn, som ikke er registreret, afspejles det først når det logges.
+        </p>
       </div>
 
       {m.note && (
