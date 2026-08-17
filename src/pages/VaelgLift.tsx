@@ -1,26 +1,37 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { AlertTriangle, ClipboardCheck, ChevronRight } from 'lucide-react'
-import { hentMaskiner } from '../lib/apvApi'
+import { AlertTriangle } from 'lucide-react'
+import { hentMaskiner, hentSenesteTjekPrMaskine, type SenesteTjek } from '../lib/apvApi'
 import type { Maskine } from '../types/apv'
+import LiftKort from '../components/LiftKort'
+
+// Sorterings-rang: fejl først, så ikke-tjekket, så godkendt.
+function rang(t: SenesteTjek | null): number {
+  if (t?.status === 'fejl') return 0
+  if (!t) return 1
+  return 2
+}
 
 export default function VaelgLift() {
   const [maskiner, setMaskiner] = useState<Maskine[]>([])
+  const [seneste, setSeneste] = useState<Record<string, SenesteTjek>>({})
   const [loading, setLoading] = useState(true)
   const [fejl, setFejl] = useState('')
 
   useEffect(() => {
-    hentMaskiner()
-      .then(setMaskiner)
+    Promise.all([hentMaskiner(), hentSenesteTjekPrMaskine()])
+      .then(([m, s]) => { setMaskiner(m); setSeneste(s) })
       .catch(e => setFejl(e.message ?? 'Kunne ikke hente lifte.'))
       .finally(() => setLoading(false))
   }, [])
 
-  // Vis sakselifte hvis typen kendes; ellers alle maskiner.
   const lifte = useMemo(() => {
     const kunLifte = maskiner.filter(m => (m.type ?? '').toLowerCase().includes('lift'))
-    return kunLifte.length > 0 ? kunLifte : maskiner
-  }, [maskiner])
+    const liste = kunLifte.length > 0 ? kunLifte : maskiner
+    return [...liste].sort((a, b) => {
+      const r = rang(seneste[a.id] ?? null) - rang(seneste[b.id] ?? null)
+      return r !== 0 ? r : a.navn.localeCompare(b.navn, 'da')
+    })
+  }, [maskiner, seneste])
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
@@ -36,21 +47,9 @@ export default function VaelgLift() {
         <div className="smu-card p-8 text-center"><p className="smu-meta text-[13px]">Ingen lifte registreret.</p></div>
       )}
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {lifte.map(m => (
-          <Link key={m.id} to={`/maskiner/${m.id}/dagligt-tjek`}
-            className="smu-card smu-list-card block p-4 no-underline">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <ClipboardCheck size={18} className="text-primary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-[15px] font-extrabold text-navy">{m.navn}</p>
-                  <p className="smu-meta text-[12px] mt-0.5">{m.fabrikat_model ?? m.type ?? '—'}</p>
-                </div>
-              </div>
-              <ChevronRight size={18} className="text-text-muted shrink-0" />
-            </div>
-          </Link>
+          <LiftKort key={m.id} maskine={m} senesteTjek={seneste[m.id] ?? null} variant="tjek" />
         ))}
       </div>
     </div>

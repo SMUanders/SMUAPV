@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Search, AlertTriangle, Wrench } from 'lucide-react'
-import { hentMaskiner } from '../lib/apvApi'
+import { Search, AlertTriangle } from 'lucide-react'
+import { hentMaskiner, hentSenesteTjekPrMaskine, type SenesteTjek } from '../lib/apvApi'
 import type { Maskine } from '../types/apv'
-import { MASKINE_STATUS_LABEL, maskineStatusBadge } from '../types/apv'
-import { dkDato } from '../lib/format'
+import LiftKort from '../components/LiftKort'
 
 export default function MaskineListe() {
   const [maskiner, setMaskiner] = useState<Maskine[]>([])
+  const [seneste, setSeneste] = useState<Record<string, SenesteTjek>>({})
   const [loading, setLoading] = useState(true)
   const [fejl, setFejl] = useState('')
   const [sog, setSog] = useState('')
 
   useEffect(() => {
-    hentMaskiner()
-      .then(setMaskiner)
+    Promise.all([hentMaskiner(), hentSenesteTjekPrMaskine()])
+      .then(([m, s]) => { setMaskiner(m); setSeneste(s) })
       .catch(e => setFejl(e.message ?? 'Kunne ikke hente maskiner.'))
       .finally(() => setLoading(false))
   }, [])
@@ -50,22 +49,7 @@ export default function MaskineListe() {
 
       <div className="grid sm:grid-cols-2 gap-3">
         {synlige.map(m => (
-          <Link key={m.id} to={`/maskiner/${m.id}`} className="smu-card smu-list-card block p-4 no-underline">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3 min-w-0">
-                <Wrench size={18} className="text-primary shrink-0 mt-0.5" />
-                <div className="min-w-0">
-                  <p className="text-[15px] font-extrabold text-navy">{m.navn}</p>
-                  <p className="smu-meta text-[12px] mt-0.5">{m.fabrikat_model ?? m.type ?? '—'}</p>
-                  <p className="smu-meta text-[12px] mt-0.5">{m.serienr}</p>
-                  {m.naeste_eftersyn && (
-                    <p className="smu-meta text-[12px] mt-1">Næste eftersyn: {dkDato(m.naeste_eftersyn)}</p>
-                  )}
-                </div>
-              </div>
-              <span className={maskineStatusBadge(m.status)}>{MASKINE_STATUS_LABEL[m.status]}</span>
-            </div>
-          </Link>
+          <LiftKort key={m.id} maskine={m} senesteTjek={seneste[m.id] ?? null} variant="register" />
         ))}
       </div>
     </div>

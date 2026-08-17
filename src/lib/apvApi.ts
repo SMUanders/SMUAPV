@@ -240,6 +240,28 @@ export async function opretDagligtTjek(
   return data as string
 }
 
+/** Let visning af seneste tjek (til lift-kort). */
+export type SenesteTjek = Pick<DagligtTjek, 'id' | 'maskine_id' | 'created_at' | 'status' | 'udfoert_af_navn'>
+
+/**
+ * Seneste daglige tjek pr. maskine — ÉN query (ingen N+1). Henter alle tjek
+ * sorteret nyeste-først og beholder det første pr. maskine.
+ * (Vokser loggen sig stor, er den mindste optimering et `distinct on`-view;
+ * unødvendigt ved nuværende datamængde.)
+ */
+export async function hentSenesteTjekPrMaskine(): Promise<Record<string, SenesteTjek>> {
+  const { data, error } = await supabase
+    .from('apv_daglige_tjek')
+    .select('id, maskine_id, created_at, status, udfoert_af_navn')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  const seneste: Record<string, SenesteTjek> = {}
+  for (const row of (data as SenesteTjek[]) ?? []) {
+    if (!seneste[row.maskine_id]) seneste[row.maskine_id] = row
+  }
+  return seneste
+}
+
 /** Historik af daglige tjek for en maskine (nyeste først). */
 export async function hentDagligeTjek(maskineId: string): Promise<DagligtTjek[]> {
   const { data, error } = await supabase
