@@ -10,13 +10,15 @@ import { dirname, join } from 'node:path'
 const BASE = 'https://smuapv.netlify.app'
 const NAVY = '#213746'
 
+// Navne = maskinernes visningsnavn (apv_maskiner.navn). id'erne er uændrede,
+// så QR-destinationerne er de samme — kun tekst/filnavne ændres.
 const LIFTE = [
-  { navn: 'INA',     fil: 'ina',     id: 'a0000000-0000-4000-8000-0000000000d1' },
-  { navn: 'LISSY',   fil: 'lissy',   id: 'a0000000-0000-4000-8000-0000000000d2' },
-  { navn: 'ANDREAS', fil: 'andreas', id: 'a0000000-0000-4000-8000-0000000000d3' },
-  { navn: 'SASCHA',  fil: 'sascha',  id: 'a0000000-0000-4000-8000-0000000000d4' },
-  { navn: 'DANA',    fil: 'dana',    id: 'a0000000-0000-4000-8000-0000000000d5' },
-  { navn: 'EKSTRA',  fil: 'ekstra',  id: 'a0000000-0000-4000-8000-0000000000d6' },
+  { navn: 'Lift 01', fil: 'lift-01', id: 'a0000000-0000-4000-8000-0000000000d1' },
+  { navn: 'Lift 02', fil: 'lift-02', id: 'a0000000-0000-4000-8000-0000000000d2' },
+  { navn: 'Lift 03', fil: 'lift-03', id: 'a0000000-0000-4000-8000-0000000000d3' },
+  { navn: 'Lift 04', fil: 'lift-04', id: 'a0000000-0000-4000-8000-0000000000d4' },
+  { navn: 'Lift 05', fil: 'lift-05', id: 'a0000000-0000-4000-8000-0000000000d5' },
+  { navn: 'Lift 06', fil: 'lift-06', id: 'a0000000-0000-4000-8000-0000000000d6' },
 ]
 
 const her = dirname(fileURLToPath(import.meta.url))
