@@ -26,6 +26,9 @@ dist-ssr
 # Supabase CLI lokal state
 supabase/.temp
 
+# Genererede QR-PNG'er (regenereres via scripts/gen-qr.mjs) — HTML-arket committes
+qr-koder/*.png
+
 # Claude Code harness / lokal config — behold kun launch.json (dev-server-config)
 .claude/*
 !.claude/launch.json
