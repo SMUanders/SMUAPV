@@ -5,18 +5,22 @@ import {
   hentMaskineEnkelt, hentOmraader, hentPersoner, hentDagligeTjek, type PersonKort,
 } from '../lib/apvApi'
 import type { Maskine, Omraade, DagligtTjek } from '../types/apv'
-import { MASKINE_STATUS_LABEL, maskineStatusBadge } from '../types/apv'
+import { MASKINE_STATUS_LABEL, maskineStatusBadge, erAdmin } from '../types/apv'
+import { useAuth } from '../context/AuthContext'
 import { Raekke, Afsnit, Dokumenter } from '../components/Vis'
-import { dkDato, dkDatoTid, dkTid, erFortid, kontrolStatus } from '../lib/format'
+import EftersynSektion from '../components/EftersynSektion'
+import { dkDatoTid, dkTid, erFortid, kontrolStatus } from '../lib/format'
 
 export default function MaskineDetalje() {
   const { id } = useParams<{ id: string }>()
+  const { profil } = useAuth()
   const [m, setM] = useState<Maskine | null>(null)
   const [omraader, setOmraader] = useState<Omraade[]>([])
   const [personer, setPersoner] = useState<PersonKort[]>([])
   const [tjek, setTjek] = useState<DagligtTjek[]>([])
   const [loading, setLoading] = useState(true)
   const [fejl, setFejl] = useState('')
+  const [tick, setTick] = useState(0)
 
   useEffect(() => {
     if (!id) return
@@ -24,7 +28,7 @@ export default function MaskineDetalje() {
       .then(([ma, o, p, t]) => { setM(ma); setOmraader(o); setPersoner(p); setTjek(t) })
       .catch(e => setFejl(e.message ?? 'Kunne ikke hente maskinen.'))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, tick])
 
   if (loading) return <p className="smu-meta text-sm">Indlæser…</p>
   if (fejl) return <div className="smu-notice smu-notice-warn"><AlertTriangle size={15} />{fejl}</div>
@@ -114,34 +118,16 @@ export default function MaskineDetalje() {
         <Raekke label="Kræver kontrol før brug" værdi={m.daglig_tjek ? 'Ja' : 'Nej'} />
       </div>
 
-      {/* Periodisk eftersyn (adskilt fra kontrol før brug) */}
-      <div className="smu-card p-5">
-        <p className="smu-eyebrow mb-3">Periodisk eftersyn</p>
-        {eftersynForfaldet && (
-          <div className="smu-notice smu-notice-warn mb-3">
-            <AlertTriangle size={15} /> Eftersyn forfaldet — beregnet næste eftersyn var {dkDato(m.naeste_eftersyn)}.
-          </div>
-        )}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <div>
-            <span className="smu-label">Interval</span>
-            <p className="text-[16px] font-bold text-navy">{m.eftersyn_interval_mdr ? `${m.eftersyn_interval_mdr} mdr` : '—'}</p>
-          </div>
-          <div>
-            <span className="smu-label">Seneste eftersyn</span>
-            <p className="text-[16px] font-bold text-navy">{m.seneste_eftersyn ? dkDato(m.seneste_eftersyn) : '—'}</p>
-          </div>
-          <div>
-            <span className="smu-label">Næste eftersyn</span>
-            <p className={`text-[16px] font-extrabold ${eftersynForfaldet ? 'text-orange-deep' : 'text-navy'}`}>
-              {m.naeste_eftersyn ? dkDato(m.naeste_eftersyn) : '—'}
-            </p>
-          </div>
-        </div>
-        <p className="smu-meta text-[11px] mt-3">
-          Beregnes ud fra seneste registrerede eftersyn + interval. Er der udført et nyere eftersyn, som ikke er registreret, afspejles det først når det logges.
-        </p>
-      </div>
+      {/* Periodisk eftersyn (adskilt fra grundstatus og kontrol før brug) */}
+      <EftersynSektion
+        maskineId={m.id}
+        senesteEftersynDato={m.seneste_eftersyn}
+        naesteEftersynDato={m.naeste_eftersyn}
+        eftersynForfaldet={eftersynForfaldet}
+        personer={personer}
+        erAdmin={erAdmin(profil)}
+        onGemt={() => setTick(t => t + 1)}
+      />
 
       {m.note && (
         <div className="smu-card p-5"><Afsnit label="Note" tekst={m.note} /></div>

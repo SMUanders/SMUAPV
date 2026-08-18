@@ -20,6 +20,13 @@ export function erFortid(iso: string | null | undefined): boolean {
   return iso.slice(0, 10) < iDagISO()
 }
 
+/** Måned + år (da-DK), fx "November 2026". Brugervenlig visning af næste eftersyn. */
+export function dkMaanedAar(iso: string | null): string {
+  if (!iso) return ''
+  const s = new Date(iso).toLocaleDateString('da-DK', { month: 'long', year: 'numeric' })
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
 /** Klokkeslæt (da-DK), fx "07:14". */
 export function dkTid(iso: string | null): string {
   if (!iso) return ''

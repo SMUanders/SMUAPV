@@ -329,6 +329,38 @@ export interface Paabud {
   slettet: boolean
 }
 
+// ─── Periodisk eftersyn ───
+export type EftersynResultat = 'ok' | 'anmaerkning' | 'kasseret'
+
+export const EFTERSYN_RESULTAT_LABEL: Record<EftersynResultat, string> = {
+  ok: 'OK',
+  anmaerkning: 'Anmærkning',
+  kasseret: 'Kasseret',
+}
+
+export function eftersynResultatBadge(r: EftersynResultat): string {
+  switch (r) {
+    case 'ok':          return 'smu-badge smu-badge-green'
+    case 'anmaerkning': return 'smu-badge smu-badge-orange'
+    case 'kasseret':    return 'smu-badge smu-badge-red'
+    default:            return 'smu-badge smu-badge-grey'
+  }
+}
+
+export interface Eftersyn {
+  id: string
+  maskine_id: string
+  dato: string
+  udfoert_af_id: string | null
+  udfoert_af_fritekst: string | null   // ekstern udfører/servicefirma
+  maerkat_nr: string | null
+  resultat: EftersynResultat
+  note: string | null
+  dokumenter: Dokument[]
+  slettet: boolean
+  created_at: string
+}
+
 // ─── Daglig tjekliste for sakselifte ───
 export type TjekResultat = 'ok' | 'fejl' | 'ikke_relevant'
 export type TjekStatus = 'godkendt' | 'fejl'

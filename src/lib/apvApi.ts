@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import type {
   Fund, FundPayload, Omraade, Forslag, ForslagEntitet, ForslagOperation,
   Kemikalie, Krv, Maskine, Paabud, DagligtTjek, DagligtTjekPunkt, TjekResultat,
+  Eftersyn, EftersynResultat,
 } from '../types/apv'
 
 // =============================================================
@@ -214,6 +215,48 @@ export async function hentPaabudEnkelt(id: string): Promise<Paabud | null> {
     .from('apv_paabud').select('*').eq('id', id).maybeSingle()
   if (error) throw error
   return (data as Paabud) ?? null
+}
+
+// ─── Periodisk eftersyn ───
+
+/** Eftersynslog for en maskine (nyeste først). Alle authenticated må læse. */
+export async function hentEftersyn(maskineId: string): Promise<Eftersyn[]> {
+  const { data, error } = await supabase
+    .from('apv_eftersyn').select('*')
+    .eq('maskine_id', maskineId).eq('slettet', false)
+    .order('dato', { ascending: false })
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data as Eftersyn[]) ?? []
+}
+
+/**
+ * Registrér et periodisk eftersyn (admin-only — håndhæves af RLS-insert-policy
+ * apv_eftersyn_admin_insert). Enten intern person ELLER ekstern fritekst — ikke
+ * begge. Seneste/næste eftersyn genberegnes automatisk af apv_maskiner_beriget.
+ */
+export async function opretEftersyn(input: {
+  maskine_id: string
+  dato: string
+  udfoert_af_id: string | null
+  udfoert_af_fritekst: string | null
+  resultat: EftersynResultat
+  maerkat_nr: string | null
+  note: string | null
+}): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  const { error } = await supabase.from('apv_eftersyn').insert({
+    maskine_id: input.maskine_id,
+    dato: input.dato,
+    udfoert_af_id: input.udfoert_af_id,
+    udfoert_af_fritekst: input.udfoert_af_fritekst,
+    resultat: input.resultat,
+    maerkat_nr: input.maerkat_nr,
+    note: input.note,
+    created_by: user?.id ?? null,
+    updated_by: user?.id ?? null,
+  })
+  if (error) throw error
 }
 
 // ─── Daglig tjekliste ───
