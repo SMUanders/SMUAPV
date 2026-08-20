@@ -53,8 +53,9 @@ aldrig må genbruges som appens fremtidige identitet.
 En app uden verificeret adresse har `url: null`; den gættes aldrig.
 `maalUrl` er platformens **godkendte målmodel** (`<app>.smu.signmeup.dk`) og er dokumentation, ikke live-sandhed.
 
-Cutover og live-verificeret (20. aug. 2026): Hub (`smu.signmeup.dk`), OS (`os.smu.signmeup.dk`) og
-APV (`apv.smu.signmeup.dk`). Tid, Wiki, Color og Source kører fortsat på deres Netlify-adresse.
+Cutover og live-verificeret (20. aug. 2026): Hub (`smu.signmeup.dk`), OS (`os.smu.signmeup.dk`),
+APV (`apv.smu.signmeup.dk`) og Wiki (`wiki.smu.signmeup.dk`). Tid, Color og Source kører fortsat på
+deres Netlify-adresse.
 Den delte cookie-session (SSO) virker **kun** på `*.smu.signmeup.dk`, så et hop fra Hub til en
 `netlify.app`-adresse kan kræve nyt login, indtil den app er cutover. Når en app er cutover, skiftes dens
 `url` til subdomænet, og Netlify-adressen bliver legacy — den svarer stadig, men deler ikke platform-cookien

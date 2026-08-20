@@ -20,9 +20,10 @@
  * `url`     = VERIFICERET adresse. Hub linker kun til den, når appen er frigivet.
  * `maalUrl` = godkendt målmodel (<app>.smu.signmeup.dk). Dokumentation, ikke live-sandhed.
  *             Udeladt for apps uden besluttet subdomæne — den gættes aldrig.
- * Cutover og live-verificeret 20. aug. 2026: Hub (smu.signmeup.dk), OS (os.smu.signmeup.dk)
- * og APV (apv.smu.signmeup.dk). Tid, Wiki, Color og Source kører fortsat på Netlify, og den
- * delte cookie-session (SSO) virker KUN på *.smu.signmeup.dk — så et hop dertil kan kræve nyt login.
+ * Cutover og live-verificeret 20. aug. 2026: Hub (smu.signmeup.dk), OS (os.smu.signmeup.dk),
+ * APV (apv.smu.signmeup.dk) og Wiki (wiki.smu.signmeup.dk). Tid, Color og Source kører fortsat på
+ * Netlify, og den delte cookie-session (SSO) virker KUN på *.smu.signmeup.dk — så et hop til en
+ * netlify.app-adresse kan kræve nyt login.
  */
 
 /** Er produktet frigivet til almindelig medarbejderbrug? */
@@ -120,7 +121,10 @@ export const PLATFORM_APPS: Record<string, AppMeta> = {
     appKey: 'wiki',
     displayName: 'SMU Wiki',
     description: 'Vejledninger og fælles viden',
-    url: 'https://smuwiki.netlify.app',
+    // Cutover gennemført: fælles session (SSO) live-verificeret 20. aug. 2026.
+    // Tidligere adresse https://smuwiki.netlify.app svarer stadig, men er legacy — den deler
+    // ikke platform-cookien og må ikke linkes fra Hub/AppSwitcher.
+    url: 'https://wiki.smu.signmeup.dk',
     maalUrl: 'https://wiki.smu.signmeup.dk',
     icon: '/icons/apps/smu-wiki.svg',
     sortOrder: 40,
