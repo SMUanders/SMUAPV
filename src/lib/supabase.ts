@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { platformAuthStorage } from '../platform-nav/platformStorage'
 
 // SMU APV bruger SAMME Supabase-projekt som SMU OS / SMU Wiki (delt login +
 // brugere). Kun anon key — al adgang beskyttes af de stramme apv_-RLS-politikker
@@ -10,4 +11,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Supabase URL og anon key mangler i .env.local')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Kun `storage` er overridet — miljøbevidst platform-session: delt cookie på
+// *.smu.signmeup.dk (fælles login på tværs af SMU-apps), ellers localStorage.
+// På det nuværende *.netlify.app-domæne er adfærden derfor UÆNDRET, indtil APV
+// får sit custom subdomæne. Ingen anden auth-logik og ingen flowType er rørt.
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: platformAuthStorage(),
+  },
+})
