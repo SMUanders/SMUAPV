@@ -5,8 +5,10 @@ ind i hver app der skal have app-skifteren (ingen npm-pakke/monorepo). Kanonisk 
 `smu-hub/src/platform-nav/`.
 
 ## Indhold (ejer KUN platform-navigation — ikke app-domæne-UI)
-- `platformApps.ts` — app-katalog keyed på app-key (os/tid/apv/wiki/color/source) + `HUB_APP`. Synlighed kommer
-  altid fra `app_adgange` (live), aldrig fra metadata.
+- `platformApps.ts` — app-katalog (`status` + `synlighed` pr. app) + `HUB_APP`. Adgang kommer altid fra
+  `app_adgange` (live), aldrig fra metadata.
+- `platformSynlighed.ts` — den rene synlighedsregel (`tilstandFor`, `synligeApps`, `maaAabnes`). Ingen React,
+  ingen netværk — kan læses og verificeres isoleret.
 - `AppIcon.tsx` — officielt app-ikon kant-til-kant (rounded clip, ingen ekstra navy-tile).
 - `useAllowedApps.ts` — `usePlatformApps()` (hele kataloget med brugerens tilstand) og `useAllowedApps()`
   (kun apps brugeren må åbne). Læser `app_adgange` via den injicerede Supabase-klient (ingen bypass).
@@ -19,28 +21,44 @@ ind i hver app der skal have app-skifteren (ingen npm-pakke/monorepo). Kanonisk 
 | | **Hub** (platformoversigt) | **AppSwitcher** (daglig navigation) |
 |---|---|---|
 | Hook | `usePlatformApps()` | `useAllowedApps()` |
-| Viser | hele SMU-universet | Hub + aktuel app + brugerens øvrige live-apps |
+| Viser | hele det synlige SMU-univers | Hub + aktuel app + brugerens øvrige frigivne apps |
 | Apps uden adgang | vises med "Ingen adgang" | vises **ikke** |
 | Apps på vej | vises med "På vej" | vises **ikke** |
+| Private apps uden adgang | vises **ikke** | vises **ikke** |
 
 Hub er platformens kort: en medarbejder skal kunne se, at fx SMU Source findes, uden at kunne åbne den.
 AppSwitcher er et arbejdsværktøj: den må kun indeholde ting, brugeren rent faktisk kan hoppe til.
 
-**Tilstande** (`AppTilstand` i `useAllowedApps.ts`):
-- `tilgaengelig` — appen er live **og** brugeren har aktiv `app_adgang` → kortet er et link.
-- `ingen_adgang` — appen er live, men brugeren mangler adgang → kortet vises roligt uden href.
-  Det må **ikke** ligne en teknisk fejl: grå mærkat, ingen rød, ingen fejlikon.
-- `paa_vej` — kendt platform-app der endnu ikke er live → dæmpet kort, ingen URL opfindes.
+**Produktfrigivelse er ikke teknisk deploy.** Kataloget har to uafhængige akser:
+- `status`: `frigivet` (rigtigt arbejdsværktøj) | `paa_vej` (kendt produkt, ikke frigivet endnu)
+- `synlighed`: `discoverable` (alle må se at appen findes) | `privat` (kun synlig med aktiv adgang)
+
+**Tilstande** (`AppTilstand` i `platformSynlighed.ts` — ren funktion, ingen React):
+- `tilgaengelig` — frigivet **og** aktiv `app_adgang` → kortet er et link.
+- `ingen_adgang` — frigivet + discoverable, men uden adgang → roligt kort uden href.
+  Det må **ikke** ligne en teknisk fejl: grå mærkat, ingen rød, intet fejlikon.
+- `paa_vej` — ikke frigivet → dæmpet kort, **aldrig** klikbart. Gælder også apps der teknisk
+  set er deployet (fx Source), og apps helt uden URL/app-key (fx Arkiv, ESG).
+- *(ingen tilstand)* — `privat` app uden adgang filtreres helt væk, så eksistensen ikke røbes (MUS).
+
+Synlighed vurderes FØR status, så en privat app aldrig kan lække via "På vej" eller "Ingen adgang".
+Skjulningen er en UX-beslutning oven på RLS — ikke sikkerhedsmekanismen i sig selv.
+
+**Ikoner:** en `paa_vej`-app uden officiel identitet bruger `PAA_VEJ_IKON`
+(`platform-paa-vej.svg`) — en neutral, stiplet placeholder der bevidst ikke ligner et app-ikon og
+aldrig må genbruges som appens fremtidige identitet.
 
 ## URL-disciplin
-`url` er appens **verificerede live-adresse** — det eneste Hub/AppSwitcher linker til.
+`url` er appens **verificerede adresse** — det eneste Hub/AppSwitcher linker til, og kun når appen er frigivet.
+En app uden verificeret adresse har `url: null`; den gættes aldrig.
 `maalUrl` er platformens **godkendte målmodel** (`<app>.smu.signmeup.dk`) og er dokumentation, ikke live-sandhed.
 
 Hub (`smu.signmeup.dk`) og OS (`os.smu.signmeup.dk`) er cutover og live-verificeret. De øvrige apps kører
 fortsat på deres Netlify-adresse. Den delte cookie-session (SSO) virker **kun** på `*.smu.signmeup.dk`, så et
 hop fra Hub til en `netlify.app`-adresse kan kræve nyt login, indtil den app er cutover.
 
-Tilføj aldrig en app til kataloget på et gæt — hverken app-key, URL, ikon eller status skal antages.
+Tilføj aldrig en app til kataloget på et gæt — hverken app-key, URL, ikon, status eller synlighed må antages.
+`appKey: null` betyder, at appen ikke har adgangsmodel i databasen; den oprettes ikke herfra.
 
 ## Multi-app arbejde
 Navigation sker med almindelige `<a href>`, ikke programmatisk redirect. Brugeren bestemmer selv, om en app
@@ -70,6 +88,7 @@ Konkrete handoffs (OS→Color, OS→Tid) er **ikke** implementeret og kræver pr
    implicit-baseret reset-password-flow (fx OS's `#access_token`-parsing); `flowType` påvirker ikke session-deling.
    På `*.netlify.app`/localhost falder storage tilbage til localStorage → uændret nuværende adfærd.
 4. Placér `<AppSwitcher supabase={supabase} currentAppKey="<denne-apps-key>" />` diskret i appens topbar.
+   Rør ikke appens egen navigation, ruter eller workflow.
 5. Sørg for en synlig vej tilbage til Hub (skifteren indeholder altid Hub).
 
 ## Opdatering
