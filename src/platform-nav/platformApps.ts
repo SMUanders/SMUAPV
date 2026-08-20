@@ -20,9 +20,9 @@
  * `url`     = VERIFICERET adresse. Hub linker kun til den, når appen er frigivet.
  * `maalUrl` = godkendt målmodel (<app>.smu.signmeup.dk). Dokumentation, ikke live-sandhed.
  *             Udeladt for apps uden besluttet subdomæne — den gættes aldrig.
- * Hub og OS er cutover (smu.signmeup.dk / os.smu.signmeup.dk, live-verificeret 20. aug. 2026).
- * De øvrige apps kører på Netlify, og den delte cookie-session (SSO) virker KUN på
- * *.smu.signmeup.dk — så et hop dertil kan kræve nyt login.
+ * Cutover og live-verificeret 20. aug. 2026: Hub (smu.signmeup.dk), OS (os.smu.signmeup.dk)
+ * og APV (apv.smu.signmeup.dk). Tid, Wiki, Color og Source kører fortsat på Netlify, og den
+ * delte cookie-session (SSO) virker KUN på *.smu.signmeup.dk — så et hop dertil kan kræve nyt login.
  */
 
 /** Er produktet frigivet til almindelig medarbejderbrug? */
@@ -105,7 +105,10 @@ export const PLATFORM_APPS: Record<string, AppMeta> = {
     appKey: 'apv',
     displayName: 'SMU APV',
     description: 'Arbejdspladsvurdering og arbejdsmiljø',
-    url: 'https://smuapv.netlify.app',
+    // Cutover gennemført: fælles session (SSO) live-verificeret 20. aug. 2026.
+    // Tidligere adresse https://smuapv.netlify.app svarer stadig, men er legacy — den deler
+    // ikke platform-cookien og må ikke linkes fra Hub/AppSwitcher.
+    url: 'https://apv.smu.signmeup.dk',
     maalUrl: 'https://apv.smu.signmeup.dk',
     icon: '/icons/apps/smu-apv.svg',
     sortOrder: 30,
