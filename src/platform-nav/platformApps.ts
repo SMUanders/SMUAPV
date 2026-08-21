@@ -21,9 +21,9 @@
  * `maalUrl` = godkendt målmodel (<app>.smu.signmeup.dk). Dokumentation, ikke live-sandhed.
  *             Udeladt for apps uden besluttet subdomæne — den gættes aldrig.
  * Cutover og live-verificeret 20. aug. 2026: Hub (smu.signmeup.dk), OS (os.smu.signmeup.dk),
- * APV (apv.smu.signmeup.dk) og Wiki (wiki.smu.signmeup.dk). Tid, Color og Source kører fortsat på
- * Netlify, og den delte cookie-session (SSO) virker KUN på *.smu.signmeup.dk — så et hop til en
- * netlify.app-adresse kan kræve nyt login.
+ * APV (apv.smu.signmeup.dk) og Wiki (wiki.smu.signmeup.dk); 21. aug. 2026: MUS (mus.smu.signmeup.dk).
+ * Tid, Color og Source kører fortsat på Netlify, og den delte cookie-session (SSO) virker KUN på
+ * *.smu.signmeup.dk — så et hop til en netlify.app-adresse kan kræve nyt login.
  */
 
 /** Er produktet frigivet til almindelig medarbejderbrug? */
@@ -188,7 +188,10 @@ export const PLATFORM_APPS: Record<string, AppMeta> = {
     appKey: 'mus',
     displayName: 'SMU MUS',
     description: 'Medarbejderudviklingssamtaler',
-    url: 'https://smumus.netlify.app',
+    // Cutover gennemført: fælles session (SSO) live-verificeret 21. aug. 2026.
+    // Tidligere adresse https://smumus.netlify.app svarer stadig, men er legacy — den deler
+    // ikke platform-cookien og må ikke linkes fra Hub/AppSwitcher.
+    url: 'https://mus.smu.signmeup.dk',
     maalUrl: 'https://mus.smu.signmeup.dk',
     icon: '/icons/apps/smu-mus.svg',
     sortOrder: 90,
