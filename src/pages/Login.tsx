@@ -1,139 +1,56 @@
-import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
-type Tilstand = 'login' | 'glemt' | 'sender_glemt' | 'glemt_sendt'
+const HUB_URL = 'https://smu.signmeup.dk'
 
+/**
+ * SMU APV har ikke længere sit eget login.
+ *
+ * SMU Platform har ét fælles login på SMU Hub. Denne side tilbød tidligere
+ * email + adgangskode direkte, hvilket var en parallel loginvej: en medarbejder
+ * kunne blive på det fælles password og aldrig komme over på sit personlige.
+ *
+ * Supabase Auth er uændret identitetsejer. Der er ikke tilføjet ny auth; der er
+ * kun fjernet en parallel indgang. Sessionen deles via platform-cookien på
+ * `.smu.signmeup.dk`, så login i Hub åbner appen uden nyt login.
+ *
+ * Adgangskontrollen er uændret: `app_adgange`, `app_roller` og RLS afgør fortsat
+ * alt. Et Hub-login giver ikke i sig selv adgang til denne app.
+ */
 export default function Login() {
   const { user, loading } = useAuth()
   const location = useLocation()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [tilstand, setTilstand] = useState<Tilstand>('login')
-  const [fejl, setFejl] = useState('')
-  const [loggerInd, setLoggerInd] = useState(false)
-
   const retur = (location.state as { from?: string } | null)?.from ?? '/'
-
   if (loading) return null
   if (user) return <Navigate to={retur} replace />
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault()
-    setFejl('')
-    setLoggerInd(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setFejl('Forkert email eller adgangskode.')
-      setLoggerInd(false)
-    }
-  }
-
-  async function handleSendReset(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email) { setFejl('Indtast din email først.'); return }
-    setFejl(''); setTilstand('sender_glemt')
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    })
-    if (error) {
-      setFejl(`Kunne ikke sende reset-mail: ${error.message}`)
-      setTilstand('glemt')
-    } else {
-      setTilstand('glemt_sendt')
-    }
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-bg">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-[24px] font-extrabold tracking-[-0.03em] text-navy">SMU APV</h1>
-          <p className="smu-meta text-[13px] mt-1">Signmeups arbejdsmiljøsystem</p>
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+      <div className="smu-card w-full max-w-[380px] p-8">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <img src="/favicon.svg" alt="" className="mb-3 h-14 w-14 object-contain" />
+          <h1 className="text-[19px] font-extrabold text-navy">SMU APV</h1>
+          <p className="mt-1 text-sm font-semibold text-text-muted">Arbejdspladsvurdering og arbejdsmiljø</p>
         </div>
 
-        <div className="smu-card p-7">
-          <h2 className="text-[17px] font-extrabold text-navy tracking-[-0.01em] mb-5">
-            {tilstand === 'login' ? 'Log ind' : tilstand === 'glemt_sendt' ? 'Tjek din email' : 'Glemt adgangskode'}
-          </h2>
+        <h2 className="text-[15px] font-extrabold text-navy">Log ind på SMU Hub</h2>
+        <p className="mt-2 text-sm text-text-muted">
+          SMU Platform har ét fælles login. Log ind på Hub med dit korte brugernavn og din
+          personlige adgangskode — så åbner SMU APV uden at du skal logge ind igen.
+        </p>
 
-          {tilstand === 'login' && (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <Felt label="Email">
-                <input type="email" required autoComplete="email" autoFocus
-                  value={email} onChange={e => setEmail(e.target.value)}
-                  className="smu-input" placeholder="navn@signmeup.dk" />
-              </Felt>
-              <Felt label="Adgangskode">
-                <input type="password" required autoComplete="current-password"
-                  value={password} onChange={e => setPassword(e.target.value)}
-                  className="smu-input" placeholder="••••••••" />
-              </Felt>
-              {fejl && <p className="smu-error">{fejl}</p>}
-              <button type="submit" disabled={loggerInd} className="smu-btn-primary w-full py-2.5">
-                {loggerInd ? 'Logger ind…' : 'Log ind'}
-              </button>
-              <div className="text-center pt-1">
-                <button type="button" onClick={() => { setTilstand('glemt'); setFejl('') }}
-                  className="smu-link text-[12px]">
-                  Glemt adgangskode?
-                </button>
-              </div>
-            </form>
-          )}
+        <a
+          href={HUB_URL}
+          className="smu-btn-primary mt-5 block text-center"
+          style={{ textDecoration: 'none' }}
+        >
+          Gå til SMU Hub
+        </a>
 
-          {(tilstand === 'glemt' || tilstand === 'sender_glemt') && (
-            <form onSubmit={handleSendReset} className="space-y-4">
-              <p className="smu-meta text-[13px]">
-                Indtast din email, så sender vi dig et link til at vælge en ny adgangskode.
-              </p>
-              <Felt label="Email">
-                <input type="email" required autoComplete="email" autoFocus
-                  value={email} onChange={e => setEmail(e.target.value)}
-                  className="smu-input" placeholder="navn@signmeup.dk" />
-              </Felt>
-              {fejl && <p className="smu-error">{fejl}</p>}
-              <button type="submit" disabled={tilstand === 'sender_glemt'} className="smu-btn-primary w-full py-2.5">
-                {tilstand === 'sender_glemt' ? 'Sender…' : 'Send reset-link'}
-              </button>
-              <div className="text-center pt-1">
-                <button type="button" onClick={() => { setTilstand('login'); setFejl('') }}
-                  className="smu-link text-[12px]">
-                  Tilbage til login
-                </button>
-              </div>
-            </form>
-          )}
-
-          {tilstand === 'glemt_sendt' && (
-            <div className="space-y-4">
-              <div className="rounded-lg p-4 bg-teal-soft">
-                <p className="text-[13px] font-bold text-teal-deep mb-1">Reset-link sendt</p>
-                <p className="text-[12px] font-semibold text-teal-deep">
-                  Vi har sendt et link til <span className="font-extrabold">{email}</span>. Tjek også din spam-mappe. Linket er gyldigt i en time.
-                </p>
-              </div>
-              <button type="button" onClick={() => { setTilstand('login'); setFejl('') }} className="smu-btn-secondary w-full text-center">
-                Tilbage til login
-              </button>
-            </div>
-          )}
-        </div>
-
-        <p className="smu-meta text-[11px] text-center mt-6">
-          Deler login med SMU OS og SMU Wiki. Ingen selvbetjent oprettelse — kontakt en administrator.
+        <p className="mt-4 text-xs font-semibold text-text-muted">
+          Mangler du adgangskode, så bed Anders om et engangslink.
         </p>
       </div>
-    </div>
-  )
-}
-
-function Felt({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <span className="smu-label">{label}</span>
-      {children}
     </div>
   )
 }
