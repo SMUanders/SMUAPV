@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { AlertTriangle, Check, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import {
-  erAdmin, FUND_FELT_LABEL, FUND_STATUS_LABEL,
+  FUND_FELT_LABEL, FUND_STATUS_LABEL,
   type Forslag, type Fund, type FundPayload, type FundStatus,
 } from '../../types/apv'
 import {
@@ -15,7 +15,7 @@ import { dkDato, dkDatoTid } from '../../lib/format'
 const FUND_KEYS = Object.keys(FUND_FELT_LABEL) as (keyof FundPayload)[]
 
 export default function AdminForslag() {
-  const { profil, loading: authLoading } = useAuth()
+  const { loading: authLoading, appAdmin } = useAuth()
   const [forslag, setForslag] = useState<Forslag[]>([])
   const [fund, setFund] = useState<Fund[]>([])
   const [omraader, setOmraader] = useState<{ id: string; navn: string }[]>([])
@@ -40,7 +40,7 @@ export default function AdminForslag() {
     () => Object.fromEntries(fund.map(f => [f.id, f])), [fund])
 
   if (authLoading) return <p className="smu-meta text-sm">Indlæser…</p>
-  if (!erAdmin(profil)) return <Navigate to="/" replace />
+  if (!appAdmin) return <Navigate to="/" replace />
 
   return (
     <div className="space-y-5">

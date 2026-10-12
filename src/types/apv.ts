@@ -21,11 +21,6 @@ export interface Profil {
   aktiv: boolean
 }
 
-/** Admin er den eneste rolle med særrettigheder i SMU APV V1. */
-export function erAdmin(profil: Profil | null): boolean {
-  return profil?.rolle === 'admin' && profil?.aktiv === true
-}
-
 // ─── Områder (register/lookup) ───
 export interface Omraade {
   id: string

@@ -70,8 +70,9 @@ flyttet til Supabase Storage — alle kørt/integreret i det delte Supabase-proj
 - `..._apv_forslag_funktioner.sql` — `apv_godkend_forslag()` (whitelist, ingen
   dynamic SQL, `ret` nulstiller nullable felter via JSONB-key-presence) +
   `apv_afvis_forslag()`.
-- **Manuelt krav:** en bruger skal have `rolle='admin'` + `aktiv=true` i `profiler`
-  for at kunne godkende/afvise.
+- **Adgang:** app-rolle via den fælles model, tildelt i SMU Hub (Medarbejdere): `apv/admin`
+  (`apv_er_admin()` = `har_app_rolle('apv','admin')`) kan godkende/afvise. Frontend bruger samme
+  RPC'er (`har_app_adgang`/`har_app_rolle`) — `profiler.rolle` er kun jobfunktion, ikke adgang.
 
 ### Fase 0 — scaffold
 

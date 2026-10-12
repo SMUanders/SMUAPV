@@ -5,7 +5,7 @@ import {
   hentMaskineEnkelt, hentOmraader, hentPersoner, hentDagligeTjek, type PersonKort,
 } from '../lib/apvApi'
 import type { Maskine, Omraade, DagligtTjek } from '../types/apv'
-import { MASKINE_STATUS_LABEL, maskineStatusBadge, erAdmin } from '../types/apv'
+import { MASKINE_STATUS_LABEL, maskineStatusBadge } from '../types/apv'
 import { useAuth } from '../context/AuthContext'
 import { Raekke, Afsnit, Dokumenter } from '../components/Vis'
 import EftersynSektion from '../components/EftersynSektion'
@@ -13,7 +13,7 @@ import { dkDatoTid, dkTid, erFortid, kontrolStatus } from '../lib/format'
 
 export default function MaskineDetalje() {
   const { id } = useParams<{ id: string }>()
-  const { profil } = useAuth()
+  const { appAdmin } = useAuth()
   const [m, setM] = useState<Maskine | null>(null)
   const [omraader, setOmraader] = useState<Omraade[]>([])
   const [personer, setPersoner] = useState<PersonKort[]>([])
@@ -125,7 +125,7 @@ export default function MaskineDetalje() {
         naesteEftersynDato={m.naeste_eftersyn}
         eftersynForfaldet={eftersynForfaldet}
         personer={personer}
-        erAdmin={erAdmin(profil)}
+        erAdmin={appAdmin}
         onGemt={() => setTick(t => t + 1)}
       />
 

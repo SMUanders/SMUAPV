@@ -2,7 +2,6 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { LogOut, ShieldCheck } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { erAdmin } from '../types/apv'
 import { AppSwitcher } from '../platform-nav/AppSwitcher'
 import { appProductVersion } from '../lib/version'
 
@@ -18,9 +17,9 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 // Maskiner, Påbud, Forslag) tilføjes her i deres respektive faser jf.
 // PROJECT_OVERVIEW.md — de er bevidst udeladt i scaffold-fasen.
 export default function Header() {
-  const { profil } = useAuth()
+  const { profil, appAdmin } = useAuth()
   const navigate = useNavigate()
-  const admin = erAdmin(profil)
+  const admin = appAdmin
 
   async function handleLogout() {
     await supabase.auth.signOut()
