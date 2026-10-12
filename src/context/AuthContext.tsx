@@ -24,6 +24,11 @@ interface AuthContextType {
   appAdgang: boolean
   /** `har_app_rolle('apv', 'admin')`. */
   appAdmin: boolean
+  /**
+   * `har_app_rolle('apv', 'bruger')` — må oprette/foreslå. Falsk for `observatoer`
+   * (read-only): skrivehandlinger skjules, så UI'et ikke tilbyder noget RLS afviser.
+   */
+  appSkriv: boolean
   /** Sat hvis adgangen ikke kunne afgøres (netværk/RPC-fejl). */
   appAdgangFejl: string | null
   loading: boolean
@@ -34,6 +39,7 @@ const AuthContext = createContext<AuthContextType>({
   profil: null,
   appAdgang: false,
   appAdmin: false,
+  appSkriv: false,
   appAdgangFejl: null,
   loading: true,
 })
@@ -43,22 +49,25 @@ interface Brugerdata {
   profil: Profil | null
   appAdgang: boolean
   appAdmin: boolean
+  appSkriv: boolean
   appAdgangFejl: string | null
 }
 
 async function hentBrugerdata(userId: string): Promise<Brugerdata> {
   // Profilen hentes fra den DELTE profiler-tabel. Appen opretter aldrig profiler.
-  const [profilSvar, adgangSvar, adminSvar] = await Promise.all([
+  const [profilSvar, adgangSvar, adminSvar, skrivSvar] = await Promise.all([
     supabase.from('profiler').select('id, fuldt_navn, rolle, aktiv').eq('id', userId).single(),
     supabase.rpc('har_app_adgang', { _app: APP }),
     supabase.rpc('har_app_rolle', { _app: APP, _min_rolle: 'admin' }),
+    supabase.rpc('har_app_rolle', { _app: APP, _min_rolle: 'bruger' }),
   ])
-  const fejl = adgangSvar.error ?? adminSvar.error
+  const fejl = adgangSvar.error ?? adminSvar.error ?? skrivSvar.error
   return {
     forBruger: userId,
     profil: (profilSvar.data as Profil) ?? null,
     appAdgang: !fejl && adgangSvar.data === true,
     appAdmin: !fejl && adminSvar.data === true,
+    appSkriv: !fejl && skrivSvar.data === true,
     appAdgangFejl: fejl ? fejl.message : null,
   }
 }
@@ -106,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profil: gyldig?.profil ?? null,
         appAdgang: gyldig?.appAdgang ?? false,
         appAdmin: gyldig?.appAdmin ?? false,
+        appSkriv: gyldig?.appSkriv ?? false,
         appAdgangFejl: gyldig?.appAdgangFejl ?? null,
         loading,
       }}

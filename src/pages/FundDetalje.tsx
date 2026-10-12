@@ -7,8 +7,10 @@ import {
 import type { Fund, Omraade } from '../types/apv'
 import { RisikoBadge, FundStatusBadge } from '../components/Badges'
 import { dkDato, erFortid } from '../lib/format'
+import { useAuth } from '../context/AuthContext'
 
 export default function FundDetalje() {
+  const { appSkriv } = useAuth()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [fund, setFund] = useState<Fund | null>(null)
@@ -57,9 +59,11 @@ export default function FundDetalje() {
           </div>
           <h1 className="smu-h1">{fund.titel}</h1>
         </div>
-        <Link to={`/fund/${fund.id}/foreslag-aendring`} className="smu-btn-primary inline-flex items-center gap-1.5">
-          <Pencil size={15} /> Foreslå ændring
-        </Link>
+        {appSkriv && (
+          <Link to={`/fund/${fund.id}/foreslag-aendring`} className="smu-btn-primary inline-flex items-center gap-1.5">
+            <Pencil size={15} /> Foreslå ændring
+          </Link>
+        )}
       </div>
 
       {harAfventende && (

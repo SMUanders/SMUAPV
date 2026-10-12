@@ -17,7 +17,7 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 // Maskiner, Påbud, Forslag) tilføjes her i deres respektive faser jf.
 // PROJECT_OVERVIEW.md — de er bevidst udeladt i scaffold-fasen.
 export default function Header() {
-  const { profil, appAdmin } = useAuth()
+  const { profil, appAdmin, appSkriv } = useAuth()
   const navigate = useNavigate()
   const admin = appAdmin
 
@@ -43,7 +43,7 @@ export default function Header() {
           <NavLink to="/maskiner" className={navClass}>Maskiner</NavLink>
           <NavLink to="/fund" className={navClass}>Fund</NavLink>
           <NavLink to="/paabud" className={navClass}>Påbud</NavLink>
-          <NavLink to="/mine-forslag" className={navClass}>Mine forslag</NavLink>
+          {appSkriv && <NavLink to="/mine-forslag" className={navClass}>Mine forslag</NavLink>}
           {admin && <NavLink to="/admin/forslag" className={navClass}>Forslag</NavLink>}
         </nav>
 

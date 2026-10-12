@@ -6,12 +6,14 @@ import type { Fund, Omraade, FundStatus, Risikoniveau } from '../types/apv'
 import { FUND_STATUS_LABEL } from '../types/apv'
 import { RisikoBadge, FundStatusBadge } from '../components/Badges'
 import { dkDato, erFortid } from '../lib/format'
+import { useAuth } from '../context/AuthContext'
 
 const AABEN_FUND: FundStatus[] = ['ny', 'i_gang']
 
 const RISIKO_RÆKKE: Record<Risikoniveau, number> = { kritisk: 0, hoej: 1, middel: 2, lav: 3 }
 
 export default function FundListe() {
+  const { appSkriv } = useAuth()
   const [fund, setFund] = useState<Fund[]>([])
   const [omraader, setOmraader] = useState<Omraade[]>([])
   const [personer, setPersoner] = useState<PersonKort[]>([])
@@ -49,9 +51,11 @@ export default function FundListe() {
           <p className="smu-eyebrow">APV</p>
           <h1 className="smu-page-title mt-1">Fund</h1>
         </div>
-        <Link to="/fund/nyt" className="smu-btn-primary inline-flex items-center gap-1.5">
-          <Plus size={15} /> Nyt fund
-        </Link>
+        {appSkriv && (
+          <Link to="/fund/nyt" className="smu-btn-primary inline-flex items-center gap-1.5">
+            <Plus size={15} /> Nyt fund
+          </Link>
+        )}
       </div>
 
       {/* Filtre */}
@@ -75,10 +79,14 @@ export default function FundListe() {
       {!loading && !fejl && synlige.length === 0 && (
         <div className="smu-card p-8 text-center">
           <p className="text-[15px] font-bold text-navy mb-1">Ingen fund endnu</p>
-          <p className="smu-meta text-[13px] mb-4">Opret det første fund som et forslag — admin godkender det.</p>
-          <Link to="/fund/nyt" className="smu-btn-primary inline-flex items-center gap-1.5">
-            <Plus size={15} /> Nyt fund
-          </Link>
+          {appSkriv && (
+            <>
+              <p className="smu-meta text-[13px] mb-4">Opret det første fund som et forslag — admin godkender det.</p>
+              <Link to="/fund/nyt" className="smu-btn-primary inline-flex items-center gap-1.5">
+                <Plus size={15} /> Nyt fund
+              </Link>
+            </>
+          )}
         </div>
       )}
 

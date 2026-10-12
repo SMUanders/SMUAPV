@@ -13,7 +13,7 @@ const TYPE_LABEL: Record<ResultatType, string> = {
 }
 
 export default function Forside() {
-  const { profil } = useAuth()
+  const { profil, appSkriv } = useAuth()
   const fornavn = profil?.fuldt_navn?.split(' ')[0] ?? null
   const [kemikalier, setKemikalier] = useState<Kemikalie[]>([])
   const [maskiner, setMaskiner] = useState<Maskine[]>([])
@@ -90,7 +90,7 @@ export default function Forside() {
       {/* Indgange */}
       {!sog.trim() && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto pt-2">
-          <Indgang til="/dagligt-tjek" ikon={<ClipboardCheck size={20} />} navn="Lift – kontrol før brug" />
+          {appSkriv && <Indgang til="/dagligt-tjek" ikon={<ClipboardCheck size={20} />} navn="Lift – kontrol før brug" />}
           <Indgang til="/kemikalier" ikon={<FlaskConical size={20} />} navn="Kemikalier" antal={kemikalier.length} />
           <Indgang til="/maskiner" ikon={<Wrench size={20} />} navn="Maskiner" antal={maskiner.length} />
           <Indgang til="/kemikalier" ikon={<ClipboardList size={20} />} navn="KRV / arbejdsinstrukser" />

@@ -13,7 +13,7 @@ import { dkDatoTid, dkTid, erFortid, kontrolStatus } from '../lib/format'
 
 export default function MaskineDetalje() {
   const { id } = useParams<{ id: string }>()
-  const { appAdmin } = useAuth()
+  const { appAdmin, appSkriv } = useAuth()
   const [m, setM] = useState<Maskine | null>(null)
   const [omraader, setOmraader] = useState<Omraade[]>([])
   const [personer, setPersoner] = useState<PersonKort[]>([])
@@ -63,9 +63,11 @@ export default function MaskineDetalje() {
       <div className="smu-card p-5">
         <div className="flex items-center justify-between gap-3 mb-3">
           <p className="smu-eyebrow">Kontrol før brug</p>
-          <Link to={`/maskiner/${m.id}/dagligt-tjek`} className="smu-btn-primary inline-flex items-center gap-1.5">
-            <ClipboardCheck size={15} /> Start kontrol før brug
-          </Link>
+          {appSkriv && (
+            <Link to={`/maskiner/${m.id}/dagligt-tjek`} className="smu-btn-primary inline-flex items-center gap-1.5">
+              <ClipboardCheck size={15} /> Start kontrol før brug
+            </Link>
+          )}
         </div>
 
         {/* Dagens status (kontrol før brug gælder i dag) */}

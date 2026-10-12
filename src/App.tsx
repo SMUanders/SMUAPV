@@ -19,6 +19,7 @@ import NytFund from './pages/NytFund'
 import ForeslaaAendring from './pages/ForeslaaAendring'
 import MineForslag from './pages/MineForslag'
 import AdminForslag from './pages/admin/AdminForslag'
+import KunSkriv from './components/KunSkriv'
 
 // Beskyttede ruter ligger under <Layout> (login-gate). Admin-ruten har desuden
 // sit eget rolle-tjek i komponenten (redirect til / for ikke-admins).
@@ -36,16 +37,16 @@ export default function App() {
             <Route path="/kemikalier/:id" element={<KemikalieDetalje />} />
             <Route path="/maskiner" element={<MaskineListe />} />
             <Route path="/maskiner/:id" element={<MaskineDetalje />} />
-            <Route path="/maskiner/:id/dagligt-tjek" element={<DagligtTjek />} />
+            <Route path="/maskiner/:id/dagligt-tjek" element={<KunSkriv><DagligtTjek /></KunSkriv>} />
             <Route path="/maskiner/:id/tjek/:tjekId" element={<DagligtTjekVis />} />
-            <Route path="/dagligt-tjek" element={<VaelgLift />} />
+            <Route path="/dagligt-tjek" element={<KunSkriv><VaelgLift /></KunSkriv>} />
             <Route path="/paabud" element={<PaabudListe />} />
             <Route path="/paabud/:id" element={<PaabudDetalje />} />
             <Route path="/fund" element={<FundListe />} />
-            <Route path="/fund/nyt" element={<NytFund />} />
+            <Route path="/fund/nyt" element={<KunSkriv><NytFund /></KunSkriv>} />
             <Route path="/fund/:id" element={<FundDetalje />} />
-            <Route path="/fund/:id/foreslag-aendring" element={<ForeslaaAendring />} />
-            <Route path="/mine-forslag" element={<MineForslag />} />
+            <Route path="/fund/:id/foreslag-aendring" element={<KunSkriv><ForeslaaAendring /></KunSkriv>} />
+            <Route path="/mine-forslag" element={<KunSkriv><MineForslag /></KunSkriv>} />
             <Route path="/admin/forslag" element={<AdminForslag />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
