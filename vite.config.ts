@@ -18,8 +18,6 @@ export default defineConfig({
     react(),
     platformUpdate(),
   ],
-  // Respektér en tildelt PORT (fx fra preview-harness). Ellers Vites standard.
-  server: {
-    port: process.env.PORT ? Number(process.env.PORT) : undefined,
-  },
+  // Fast port pr. app (porttabel i SMU_APP_STANDARD.md). strictPort: optaget port = fejl, ikke en anden port.
+  server: { port: 5184, strictPort: true },
 })
